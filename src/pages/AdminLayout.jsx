@@ -34,9 +34,6 @@ export default function AdminLayout() {
           HomyLoan Admin
         </div>
         <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <NavLink to="/" end style={navStyle}>
-            Dashboard
-          </NavLink>
           <NavLink to="/blogs" style={navStyle}>
             Blogs
           </NavLink>
@@ -45,6 +42,9 @@ export default function AdminLayout() {
           </NavLink>
           <NavLink to="/subscriptions" style={navStyle}>
             Subscriptions
+          </NavLink>
+          <NavLink to="/surveys" style={navStyle}>
+            Surveys
           </NavLink>
           <NavLink to="/homepage" style={navStyle}>
             Homepage Content
