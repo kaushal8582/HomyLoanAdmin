@@ -43,13 +43,21 @@ export default function AdminHomepage() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("landing");
   const [videoUploading, setVideoUploading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(null); // e.g. "landing-logo" or "whyPeople-0"
+  const [imageUploading, setImageUploading] = useState(null);
 
   useEffect(() => {
-    pageContentApi.getHomePageContent().then((data) => {
-      if (data && typeof data === "object") setContent(mergeContent(emptyContent, data));
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    setLoading(true);
+    setError("");
+    pageContentApi.getHomePageContent()
+      .then((data) => {
+        setContent(mergeContent(emptyContent, data && typeof data === "object" ? data : {}));
+        setActiveTab("landing");
+      })
+      .catch((err) => {
+        setContent(mergeContent(emptyContent, {}));
+        setError(err.message || "Failed to load home content. Check backend URL.");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const updateSection = (section, field, value) => {
@@ -139,10 +147,17 @@ export default function AdminHomepage() {
   const isImageUrl = (s) => typeof s === "string" && (s.startsWith("http://") || s.startsWith("https://"));
   const thumbStyle = { width: 48, height: 48, objectFit: "cover", borderRadius: 4, marginLeft: 8 };
 
-  if (loading) return <p>Loading homepage content…</p>;
+  if (loading) {
+    return (
+      <div>
+        <h1 style={{ margin: "0 0 16px", fontSize: 24 }}>Homepage Content</h1>
+        <p>Loading content…</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
+    <div style={{ minHeight: 400 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
         <h1 style={{ margin: 0, fontSize: 24 }}>Homepage Content</h1>
         <button type="button" onClick={handleSave} disabled={saving} style={{ padding: "10px 20px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 8, cursor: saving ? "not-allowed" : "pointer" }}>
@@ -222,7 +237,6 @@ export default function AdminHomepage() {
               <label style={labelStyle}>Button text</label>
               <input style={inputStyle} value={content.whyPeople?.buttonText || ""} onChange={(e) => updateSection("whyPeople", "buttonText", e.target.value)} />
               <label style={labelStyle}>Cards</label>
-              {/* Future: uncomment to allow add/remove cards */}
               {(content.whyPeople?.cards || []).map((card, i) => (
                 <div key={i} style={{ border: "1px solid #eee", padding: 12, marginBottom: 12, borderRadius: 8 }}>
                   <input style={inputStyle} placeholder="Title" value={card.title || ""} onChange={(e) => updateArray("whyPeople", "cards", i, { title: e.target.value })} />
@@ -234,10 +248,8 @@ export default function AdminHomepage() {
                   <input type="file" accept="image/*" onChange={(e) => handleImageUploadForArray("whyPeople", "cards", i, "image", e)} disabled={!!imageUploading} style={{ marginBottom: 8 }} />
                   {imageUploading === `whyPeople-cards-${i}` && <span style={{ fontSize: 12, color: "#666" }}> Uploading…</span>}
                   <textarea style={inputStyle} rows={2} placeholder="Description" value={card.description || ""} onChange={(e) => updateArray("whyPeople", "cards", i, { description: e.target.value })} />
-                  {/* <button type="button" onClick={() => removeArrayItem("whyPeople", "cards", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove card</button> */}
                 </div>
               ))}
-              {/* <button type="button" onClick={() => addArrayItem("whyPeople", "cards", { title: "", image: "", description: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add card</button> */}
             </>
           )}
 
@@ -248,7 +260,6 @@ export default function AdminHomepage() {
               <label style={labelStyle}>Subtitle</label>
               <textarea style={inputStyle} rows={2} value={content.mortgage?.subtitle || ""} onChange={(e) => updateSection("mortgage", "subtitle", e.target.value)} />
               <label style={labelStyle}>Cards (title, iconSrc, route, description)</label>
-              {/* Future: uncomment to allow add/remove cards */}
               {(content.mortgage?.cards || []).map((card, i) => (
                 <div key={i} style={{ border: "1px solid #eee", padding: 12, marginBottom: 12, borderRadius: 8 }}>
                   <input style={inputStyle} placeholder="Title" value={card.title || ""} onChange={(e) => updateArray("mortgage", "cards", i, { title: e.target.value })} />
@@ -261,17 +272,14 @@ export default function AdminHomepage() {
                   {imageUploading === `mortgage-cards-${i}` && <span style={{ fontSize: 12, color: "#666" }}> Uploading…</span>}
                   <input style={inputStyle} placeholder="Route" value={card.route || ""} onChange={(e) => updateArray("mortgage", "cards", i, { route: e.target.value })} />
                   <textarea style={inputStyle} rows={2} placeholder="Description" value={card.description || ""} onChange={(e) => updateArray("mortgage", "cards", i, { description: e.target.value })} />
-                  {/* <button type="button" onClick={() => removeArrayItem("mortgage", "cards", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button> */}
                 </div>
               ))}
-              {/* <button type="button" onClick={() => addArrayItem("mortgage", "cards", { title: "", iconSrc: "", route: "", description: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add card</button> */}
             </>
           )}
 
           {activeTab === "homeFinancingOption" && (
             <>
               <label style={labelStyle}>Options (id, title, image, route, description)</label>
-              {/* Future: uncomment to allow add/remove options */}
               {(content.homeFinancingOption?.options || []).map((opt, i) => (
                 <div key={i} style={{ border: "1px solid #eee", padding: 12, marginBottom: 12, borderRadius: 8 }}>
                   <input style={inputStyle} placeholder="ID" value={opt.id || ""} onChange={(e) => updateArray("homeFinancingOption", "options", i, { id: e.target.value })} />
@@ -285,17 +293,14 @@ export default function AdminHomepage() {
                   {imageUploading === `homeFinancingOption-options-${i}` && <span style={{ fontSize: 12, color: "#666" }}> Uploading…</span>}
                   <input style={inputStyle} placeholder="Route" value={opt.route || ""} onChange={(e) => updateArray("homeFinancingOption", "options", i, { route: e.target.value })} />
                   <textarea style={inputStyle} rows={2} placeholder="Description" value={opt.description || ""} onChange={(e) => updateArray("homeFinancingOption", "options", i, { description: e.target.value })} />
-                  {/* <button type="button" onClick={() => removeArrayItem("homeFinancingOption", "options", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button> */}
                 </div>
               ))}
-              {/* <button type="button" onClick={() => addArrayItem("homeFinancingOption", "options", { id: "", title: "", image: "", route: "", description: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add option</button> */}
             </>
           )}
 
           {activeTab === "goodHuman" && (
             <>
               <label style={labelStyle}>Stories (id, image, title)</label>
-              {/* Future: uncomment to allow add/remove stories */}
               {(content.goodHuman?.stories || []).map((s, i) => (
                 <div key={i} style={{ border: "1px solid #eee", padding: 12, marginBottom: 12, borderRadius: 8 }}>
                   <input style={inputStyle} placeholder="ID" type="number" value={String(s.id ?? "")} onChange={(e) => updateArray("goodHuman", "stories", i, { id: parseInt(e.target.value, 10) || 0 })} />
@@ -307,17 +312,14 @@ export default function AdminHomepage() {
                   <input type="file" accept="image/*" onChange={(e) => handleImageUploadForArray("goodHuman", "stories", i, "image", e)} disabled={!!imageUploading} style={{ marginBottom: 8 }} />
                   {imageUploading === `goodHuman-stories-${i}` && <span style={{ fontSize: 12, color: "#666" }}> Uploading…</span>}
                   <input style={inputStyle} placeholder="Title" value={s.title || ""} onChange={(e) => updateArray("goodHuman", "stories", i, { title: e.target.value })} />
-                  {/* <button type="button" onClick={() => removeArrayItem("goodHuman", "stories", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button> */}
                 </div>
               ))}
-              {/* <button type="button" onClick={() => addArrayItem("goodHuman", "stories", { id: (content.goodHuman?.stories?.length || 0) + 1, image: "", title: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add story</button> */}
             </>
           )}
 
           {activeTab === "client" && (
             <>
               <label style={labelStyle}>Testimonials (name, role, message, avatar)</label>
-              {/* Future: uncomment to allow add/remove testimonials */}
               {(content.client?.testimonials || []).map((t, i) => (
                 <div key={i} style={{ border: "1px solid #eee", padding: 12, marginBottom: 12, borderRadius: 8 }}>
                   <input style={inputStyle} placeholder="Name" value={t.name || ""} onChange={(e) => updateArray("client", "testimonials", i, { name: e.target.value })} />
@@ -330,10 +332,8 @@ export default function AdminHomepage() {
                   </div>
                   <input type="file" accept="image/*" onChange={(e) => handleImageUploadForArray("client", "testimonials", i, "avatar", e)} disabled={!!imageUploading} style={{ marginBottom: 8 }} />
                   {imageUploading === `client-testimonials-${i}` && <span style={{ fontSize: 12, color: "#666" }}> Uploading…</span>}
-                  {/* <button type="button" onClick={() => removeArrayItem("client", "testimonials", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button> */}
                 </div>
               ))}
-              {/* <button type="button" onClick={() => addArrayItem("client", "testimonials", { name: "", role: "", message: "", avatar: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add testimonial</button> */}
             </>
           )}
 
@@ -358,7 +358,6 @@ export default function AdminHomepage() {
               <label style={labelStyle}>Subtext</label>
               <textarea style={inputStyle} rows={2} value={content.humanPoweredMortgage?.subtext || ""} onChange={(e) => updateSection("humanPoweredMortgage", "subtext", e.target.value)} />
               <label style={labelStyle}>Stats (value, label, bg, text, size)</label>
-              {/* Future: uncomment to allow add/remove stats */}
               {(content.humanPoweredMortgage?.stats || []).map((stat, i) => (
                 <div key={i} style={{ border: "1px solid #eee", padding: 12, marginBottom: 12, borderRadius: 8 }}>
                   <input style={inputStyle} placeholder="Value" value={stat.value || ""} onChange={(e) => updateArray("humanPoweredMortgage", "stats", i, { value: e.target.value })} />
@@ -366,10 +365,8 @@ export default function AdminHomepage() {
                   <input style={inputStyle} placeholder="bg (e.g. bg-black)" value={stat.bg || ""} onChange={(e) => updateArray("humanPoweredMortgage", "stats", i, { bg: e.target.value })} />
                   <input style={inputStyle} placeholder="text (e.g. text-white)" value={stat.text || ""} onChange={(e) => updateArray("humanPoweredMortgage", "stats", i, { text: e.target.value })} />
                   <input style={inputStyle} placeholder="size (e.g. w-[160px] h-[160px])" value={stat.size || ""} onChange={(e) => updateArray("humanPoweredMortgage", "stats", i, { size: e.target.value })} />
-                  {/* <button type="button" onClick={() => removeArrayItem("humanPoweredMortgage", "stats", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button> */}
                 </div>
               ))}
-              {/* <button type="button" onClick={() => addArrayItem("humanPoweredMortgage", "stats", { value: "", label: "", bg: "", text: "", size: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add stat</button> */}
             </>
           )}
         </div>

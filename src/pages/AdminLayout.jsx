@@ -49,6 +49,16 @@ export default function AdminLayout() {
           <NavLink to="/homepage" style={navStyle}>
             Homepage Content
           </NavLink>
+          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Purchase</div>
+          <NavLink to="/content/purchase" style={navStyle}>Buy a Home</NavLink>
+          <NavLink to="/content/refinance" style={navStyle}>Refinance</NavLink>
+          <NavLink to="/content/va-loan" style={navStyle}>VA Loan</NavLink>
+          <NavLink to="/content/jumbo-loans" style={navStyle}>Jumbo Loans</NavLink>
+          <NavLink to="/content/renovation-loans" style={navStyle}>Renovation</NavLink>
+          <NavLink to="/content/downpayment" style={navStyle}>Down Payment Assistance</NavLink>
+          <NavLink to="/content/usda" style={navStyle}>USDA</NavLink>
+          <NavLink to="/content/credit-challenged" style={navStyle}>Credit Challenged</NavLink>
+          <NavLink to="/content/reverse" style={navStyle}>Reverse</NavLink>
         </nav>
         <div style={{ marginTop: "auto", paddingTop: 24 }}>
           {admin && (

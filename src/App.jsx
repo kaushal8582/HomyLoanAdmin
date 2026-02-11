@@ -33,6 +33,15 @@ function App() {
         <Route path="subscriptions" element={<AdminSubscriptions />} />
         <Route path="surveys" element={<AdminSurveys />} />
         <Route path="homepage" element={<AdminHomepage />} />
+        <Route path="content/purchase" element={<AdminPurchaseContent />} />
+        <Route path="content/refinance" element={<AdminRefinanceContent />} />
+        <Route path="content/va-loan" element={<AdminVALoanContent />} />
+        <Route path="content/jumbo-loans" element={<AdminJumboContent />} />
+        <Route path="content/renovation-loans" element={<AdminRenovationContent />} />
+        <Route path="content/downpayment" element={<AdminDPAContent />} />
+        <Route path="content/usda" element={<AdminUSDAContent />} />
+        <Route path="content/credit-challenged" element={<AdminCreditChallengedContent />} />
+        <Route path="content/reverse" element={<AdminReverseContent />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

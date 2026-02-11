@@ -16,3 +16,17 @@ export const updateHomePageContent = async (content) => {
   );
   return data.content;
 };
+
+export const getPageContent = async (page) => {
+  const { data } = await axios.get(`${API_BASE_URL}/api/page-content/${page}`);
+  return data;
+};
+
+export const updatePageContent = async (page, content) => {
+  const { data } = await axios.put(
+    `${API_BASE_URL}/api/page-content/${page}`,
+    content,
+    { headers: authHeaders() }
+  );
+  return data.content;
+};
