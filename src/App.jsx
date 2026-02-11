@@ -7,6 +7,15 @@ import AdminHomepage from "./pages/AdminHomepage";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminPress from "./pages/AdminPress";
 import AdminSurveys from "./pages/AdminSurveys";
+import AdminPurchaseContent from "./pages/AdminPurchaseContent";
+import AdminRefinanceContent from "./pages/AdminRefinanceContent";
+import AdminVALoanContent from "./pages/AdminVALoanContent";
+import AdminJumboContent from "./pages/AdminJumboContent";
+import AdminRenovationContent from "./pages/AdminRenovationContent";
+import AdminDPAContent from "./pages/AdminDPAContent";
+import AdminUSDAContent from "./pages/AdminUSDAContent";
+import AdminCreditChallengedContent from "./pages/AdminCreditChallengedContent";
+import AdminReverseContent from "./pages/AdminReverseContent";
 import { getStoredToken } from "./services/adminApi";
 
 function ProtectedRoute({ children }) {
