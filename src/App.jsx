@@ -16,6 +16,18 @@ import AdminDPAContent from "./pages/AdminDPAContent";
 import AdminUSDAContent from "./pages/AdminUSDAContent";
 import AdminCreditChallengedContent from "./pages/AdminCreditChallengedContent";
 import AdminReverseContent from "./pages/AdminReverseContent";
+import AdminAboutUsContent from "./pages/AdminAboutUsContent";
+import AdminLeadershipContent from "./pages/AdminLeadershipContent";
+import AdminGoodHumanContent from "./pages/AdminGoodHumanContent";
+import AdminReviewsContent from "./pages/AdminReviewsContent";
+import AdminCareermeetpurposeContent from "./pages/AdminCareermeetpurposeContent";
+import AdminTrustedPartnerContent from "./pages/AdminTrustedPartnerContent";
+import AdminAMPContent from "./pages/AdminAMPContent";
+import AdminMortgagePaymentContent from "./pages/AdminMortgagePaymentContent";
+import AdminHomeBuyerContent from "./pages/AdminHomeBuyerContent";
+import AdminMortgageTermDefinedContent from "./pages/AdminMortgageTermDefinedContent";
+import AdminFindOfficerContent from "./pages/AdminFindOfficerContent";
+import AdminApplyNowContent from "./pages/AdminApplyNowContent";
 import { getStoredToken } from "./services/adminApi";
 
 function ProtectedRoute({ children }) {
@@ -51,6 +63,18 @@ function App() {
         <Route path="content/usda" element={<AdminUSDAContent />} />
         <Route path="content/credit-challenged" element={<AdminCreditChallengedContent />} />
         <Route path="content/reverse" element={<AdminReverseContent />} />
+        <Route path="content/aboutus" element={<AdminAboutUsContent />} />
+        <Route path="content/leadership" element={<AdminLeadershipContent />} />
+        <Route path="content/goodhuman" element={<AdminGoodHumanContent />} />
+        <Route path="content/reviews" element={<AdminReviewsContent />} />
+        <Route path="content/careermeetpurpose" element={<AdminCareermeetpurposeContent />} />
+        <Route path="content/trustedpartner" element={<AdminTrustedPartnerContent />} />
+        <Route path="content/amp" element={<AdminAMPContent />} />
+        <Route path="content/mortgagepayment" element={<AdminMortgagePaymentContent />} />
+        <Route path="content/homebuyer" element={<AdminHomeBuyerContent />} />
+        <Route path="content/mortgagetermdefined" element={<AdminMortgageTermDefinedContent />} />
+        <Route path="content/findofficer" element={<AdminFindOfficerContent />} />
+        <Route path="content/applynow" element={<AdminApplyNowContent />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

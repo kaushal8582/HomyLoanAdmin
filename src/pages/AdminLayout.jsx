@@ -59,6 +59,22 @@ export default function AdminLayout() {
           <NavLink to="/content/usda" style={navStyle}>USDA</NavLink>
           <NavLink to="/content/credit-challenged" style={navStyle}>Credit Challenged</NavLink>
           <NavLink to="/content/reverse" style={navStyle}>Reverse</NavLink>
+          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Apply Now</div>
+          <NavLink to="/content/applynow" style={navStyle}>Apply Now</NavLink>
+          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Resources</div>
+          <NavLink to="/content/amp" style={navStyle}>HomyLoans AMP</NavLink>
+          <NavLink to="/content/mortgagepayment" style={navStyle}>Mortgage Payment</NavLink>
+          <NavLink to="/content/homebuyer" style={navStyle}>Homebuyers Guide</NavLink>
+          <NavLink to="/content/mortgagetermdefined" style={navStyle}>Mortgage Terms Defined</NavLink>
+          <NavLink to="/content/findofficer" style={navStyle}>Locations</NavLink>
+          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Careers</div>
+          <NavLink to="/content/careermeetpurpose" style={navStyle}>Branch & LO Opportunity</NavLink>
+          <NavLink to="/content/trustedpartner" style={navStyle}>Operations</NavLink>
+          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Our Story</div>
+          <NavLink to="/content/aboutus" style={navStyle}>About Us</NavLink>
+          <NavLink to="/content/leadership" style={navStyle}>Leadership</NavLink>
+          <NavLink to="/content/goodhuman" style={navStyle}>Be A Good Human</NavLink>
+          <NavLink to="/content/reviews" style={navStyle}>Reviews</NavLink>
         </nav>
         <div style={{ marginTop: "auto", paddingTop: 24 }}>
           {admin && (

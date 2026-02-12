@@ -39,17 +39,67 @@ const sectionOrder = ["hero", "loanOptions", "advantage"];
 const sectionLabels = { hero: "Hero", loanOptions: "Loan Options", advantage: "Advantage" };
 
 function mergePurchaseContent(empty, data) {
-  const out = {
-    hero: { ...empty.hero, ...(data?.hero || {}) },
-    loanOptions: { ...empty.loanOptions, ...(data?.loanOptions || {}) },
-    advantage: { ...empty.advantage, ...(data?.advantage || {}) },
+  // Helper to get value or default (handles null, undefined, but allows empty strings)
+  const getValue = (dataVal, defaultVal) => {
+    return dataVal !== null && dataVal !== undefined ? dataVal : defaultVal;
   };
-  const cards = Array.isArray(out.loanOptions.cards) ? out.loanOptions.cards.slice(0, 5) : [];
+  
+  // Merge hero section, preserving imageUrls array properly
+  const heroData = data?.hero || {};
+  const heroImageUrls = Array.isArray(heroData.imageUrls) && heroData.imageUrls.length > 0 
+    ? heroData.imageUrls 
+    : (empty.hero.imageUrls || []);
+  const heroUrls = [...heroImageUrls];
+  while (heroUrls.length < 4) heroUrls.push("");
+  
+  // Merge loanOptions section - check if data.loanOptions exists (even if empty object)
+  const loanOptionsData = data && 'loanOptions' in data ? data.loanOptions : {};
+  // Merge cards: use data cards if available, otherwise use defaults, then pad to 5
+  let cards = [];
+  if (Array.isArray(loanOptionsData.cards) && loanOptionsData.cards.length > 0) {
+    // Use data cards, but merge with defaults for missing fields in each card
+    cards = loanOptionsData.cards.map((card, i) => ({
+      title: getValue(card?.title, empty.loanOptions.cards[i]?.title || ""),
+      description: getValue(card?.description, empty.loanOptions.cards[i]?.description || ""),
+      image: getValue(card?.image, empty.loanOptions.cards[i]?.image || ""),
+      route: getValue(card?.route, empty.loanOptions.cards[i]?.route || "")
+    }));
+  } else {
+    // Use default cards
+    cards = [...(empty.loanOptions.cards || [])];
+  }
+  // Pad to 5 cards
   while (cards.length < 5) cards.push({ title: "", description: "", image: "", route: "" });
-  out.loanOptions.cards = cards;
-  const urls = Array.isArray(out.hero.imageUrls) ? out.hero.imageUrls.slice(0, 4) : [];
-  while (urls.length < 4) urls.push("");
-  out.hero.imageUrls = urls;
+  
+  // Merge advantage section - check if data.advantage exists (even if empty object)
+  const advantageData = data && 'advantage' in data ? data.advantage : {};
+  
+  const out = {
+    hero: { 
+      ...empty.hero, 
+      mainHeading: getValue(heroData.mainHeading, empty.hero.mainHeading),
+      subText: getValue(heroData.subText, empty.hero.subText),
+      ctaPrimaryLabel: getValue(heroData.ctaPrimaryLabel, empty.hero.ctaPrimaryLabel),
+      ctaSecondaryLabel: getValue(heroData.ctaSecondaryLabel, empty.hero.ctaSecondaryLabel),
+      factHeading: getValue(heroData.factHeading, empty.hero.factHeading),
+      factText: getValue(heroData.factText, empty.hero.factText),
+      imageUrls: heroUrls.slice(0, 4)
+    },
+    loanOptions: { 
+      ...empty.loanOptions,
+      heading: getValue(loanOptionsData.heading, empty.loanOptions.heading),
+      subtext: getValue(loanOptionsData.subtext, empty.loanOptions.subtext),
+      cards: cards.slice(0, 5)
+    },
+    advantage: { 
+      ...empty.advantage,
+      heading: getValue(advantageData.heading, empty.advantage.heading),
+      bodyText: getValue(advantageData.bodyText, empty.advantage.bodyText),
+      ctaLabel: getValue(advantageData.ctaLabel, empty.advantage.ctaLabel),
+      backgroundImage: getValue(advantageData.backgroundImage, empty.advantage.backgroundImage)
+    },
+  };
+  
   return out;
 }
 
@@ -69,7 +119,9 @@ export default function AdminPurchaseContent() {
     setError("");
     pageContentApi.getPageContent("purchase")
       .then((data) => {
-        setContent(mergePurchaseContent(purchaseEmptyContent, data && typeof data === "object" ? data : {}));
+        // The API returns doc.content directly, so data should be the content object
+        const merged = mergePurchaseContent(purchaseEmptyContent, data && typeof data === "object" ? data : {});
+        setContent(merged);
         setActiveTab("hero");
       })
       .catch((err) => {
