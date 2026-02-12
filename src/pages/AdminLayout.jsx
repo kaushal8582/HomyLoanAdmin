@@ -20,10 +20,13 @@ export default function AdminLayout() {
   });
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <aside
         style={{
           width: 240,
+          flexShrink: 0,
+          height: "100vh",
+          overflowY: "auto",
           background: "#1a1a2e",
           padding: "24px 16px",
           display: "flex",
@@ -49,9 +52,11 @@ export default function AdminLayout() {
           <NavLink to="/homepage" style={navStyle}>
             Homepage Content
           </NavLink>
+          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Refinance</div>
+          <NavLink to="/content/refinance2" style={navStyle}>Refinance</NavLink>
           <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Purchase</div>
           <NavLink to="/content/purchase" style={navStyle}>Buy a Home</NavLink>
-          <NavLink to="/content/refinance" style={navStyle}>Refinance</NavLink>
+          <NavLink to="/content/refinance" style={navStyle}>Save money</NavLink>
           <NavLink to="/content/va-loan" style={navStyle}>VA Loan</NavLink>
           <NavLink to="/content/jumbo-loans" style={navStyle}>Jumbo Loans</NavLink>
           <NavLink to="/content/renovation-loans" style={navStyle}>Renovation</NavLink>
@@ -59,6 +64,21 @@ export default function AdminLayout() {
           <NavLink to="/content/usda" style={navStyle}>USDA</NavLink>
           <NavLink to="/content/credit-challenged" style={navStyle}>Credit Challenged</NavLink>
           <NavLink to="/content/reverse" style={navStyle}>Reverse</NavLink>
+          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Loan Options</div>
+          <NavLink to="/content/conventional-loan" style={navStyle}>Conventional Loan</NavLink>
+          <NavLink to="/content/fha-loan" style={navStyle}>FHA Loan</NavLink>
+          <NavLink to="/content/home-select" style={navStyle}>Home Select</NavLink>
+          <NavLink to="/content/portfolio-lending" style={navStyle}>Portfolio Lending</NavLink>
+          <NavLink to="/content/fha-approved-condos" style={navStyle}>FHA Approved Condos</NavLink>
+          <NavLink to="/content/fha-no-credit" style={navStyle}>FHA No Credit</NavLink>
+          <NavLink to="/content/usda-renovation" style={navStyle}>USDA Renovation</NavLink>
+          <NavLink to="/content/physician-loan" style={navStyle}>Physician Loan</NavLink>
+          <NavLink to="/content/heloc" style={navStyle}>HELOC</NavLink>
+          <NavLink to="/content/usdaloan" style={navStyle}>USDA Loan</NavLink>
+          <NavLink to="/content/arrive-home" style={navStyle}>Arrive Home</NavLink>
+          <NavLink to="/content/fixed-adjustable" style={navStyle}>Fixed vs Adjustable</NavLink>
+          <NavLink to="/content/self-employed" style={navStyle}>Self Employed</NavLink>
+          <NavLink to="/content/firsttimehomebuyers" style={navStyle}>First Time Home Buyers</NavLink>
           <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Apply Now</div>
           <NavLink to="/content/applynow" style={navStyle}>Apply Now</NavLink>
           <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Resources</div>
@@ -102,6 +122,7 @@ export default function AdminLayout() {
       <main
         style={{
           flex: 1,
+          minWidth: 0,
           padding: 24,
           overflow: "auto",
           background: "#f5f5f5",

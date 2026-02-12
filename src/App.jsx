@@ -9,6 +9,7 @@ import AdminPress from "./pages/AdminPress";
 import AdminSurveys from "./pages/AdminSurveys";
 import AdminPurchaseContent from "./pages/AdminPurchaseContent";
 import AdminRefinanceContent from "./pages/AdminRefinanceContent";
+import AdminRefinance2Content from "./pages/AdminRefinance2Content";
 import AdminVALoanContent from "./pages/AdminVALoanContent";
 import AdminJumboContent from "./pages/AdminJumboContent";
 import AdminRenovationContent from "./pages/AdminRenovationContent";
@@ -28,6 +29,20 @@ import AdminHomeBuyerContent from "./pages/AdminHomeBuyerContent";
 import AdminMortgageTermDefinedContent from "./pages/AdminMortgageTermDefinedContent";
 import AdminFindOfficerContent from "./pages/AdminFindOfficerContent";
 import AdminApplyNowContent from "./pages/AdminApplyNowContent";
+import AdminConventionalLoanContent from "./pages/AdminConventionalLoanContent";
+import AdminFHALoanContent from "./pages/AdminFHALoanContent";
+import AdminHomeSelectContent from "./pages/AdminHomeSelectContent";
+import AdminPortfolioLendingContent from "./pages/AdminPortfolioLendingContent";
+import AdminFHAApprovedCondosContent from "./pages/AdminFHAApprovedCondosContent";
+import AdminFHANoCreditScoreContent from "./pages/AdminFHANoCreditScoreContent";
+import AdminUSDARenovationContent from "./pages/AdminUSDARenovationContent";
+import AdminPhysicianLoanContent from "./pages/AdminPhysicianLoanContent";
+import AdminHELOCContent from "./pages/AdminHELOCContent";
+import AdminUSDALoanContent from "./pages/AdminUSDALoanContent";
+import AdminArriveHomeContent from "./pages/AdminArriveHomeContent";
+import AdminFixedAdjustableContent from "./pages/AdminFixedAdjustableContent";
+import AdminSelfEmployedContent from "./pages/AdminSelfEmployedContent";
+import AdminFirstTimeHomeBuyersContent from "./pages/AdminFirstTimeHomeBuyersContent";
 import { getStoredToken } from "./services/adminApi";
 
 function ProtectedRoute({ children }) {
@@ -56,6 +71,7 @@ function App() {
         <Route path="homepage" element={<AdminHomepage />} />
         <Route path="content/purchase" element={<AdminPurchaseContent />} />
         <Route path="content/refinance" element={<AdminRefinanceContent />} />
+        <Route path="content/refinance2" element={<AdminRefinance2Content />} />
         <Route path="content/va-loan" element={<AdminVALoanContent />} />
         <Route path="content/jumbo-loans" element={<AdminJumboContent />} />
         <Route path="content/renovation-loans" element={<AdminRenovationContent />} />
@@ -75,6 +91,20 @@ function App() {
         <Route path="content/mortgagetermdefined" element={<AdminMortgageTermDefinedContent />} />
         <Route path="content/findofficer" element={<AdminFindOfficerContent />} />
         <Route path="content/applynow" element={<AdminApplyNowContent />} />
+        <Route path="content/conventional-loan" element={<AdminConventionalLoanContent />} />
+        <Route path="content/fha-loan" element={<AdminFHALoanContent />} />
+        <Route path="content/home-select" element={<AdminHomeSelectContent />} />
+        <Route path="content/portfolio-lending" element={<AdminPortfolioLendingContent />} />
+        <Route path="content/fha-approved-condos" element={<AdminFHAApprovedCondosContent />} />
+        <Route path="content/fha-no-credit" element={<AdminFHANoCreditScoreContent />} />
+        <Route path="content/usda-renovation" element={<AdminUSDARenovationContent />} />
+        <Route path="content/physician-loan" element={<AdminPhysicianLoanContent />} />
+        <Route path="content/heloc" element={<AdminHELOCContent />} />
+        <Route path="content/usdaloan" element={<AdminUSDALoanContent />} />
+        <Route path="content/arrive-home" element={<AdminArriveHomeContent />} />
+        <Route path="content/fixed-adjustable" element={<AdminFixedAdjustableContent />} />
+        <Route path="content/self-employed" element={<AdminSelfEmployedContent />} />
+        <Route path="content/firsttimehomebuyers" element={<AdminFirstTimeHomeBuyersContent />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
