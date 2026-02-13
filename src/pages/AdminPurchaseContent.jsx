@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import * as pageContentApi from "../services/pageContentApi";
 import { uploadImage } from "../services/uploadApi";
+import { mergeWithDefaults } from "../utils/contentMerge";
+
+const defaultPurchaseFaqs = [
+  { q: "How much do I need for a down payment?", a: "Many of our programs allow for as little as 3% down. FHA can go as low as 3.5%, and VA and USDA often allow zero down for eligible borrowers." },
+  { q: "What loan types do you offer for purchase?", a: "We offer FHA, VA, USDA, conventional, and down payment assistance programs to fit a variety of needs." },
+  { q: "How do I get started?", a: "You can check today's rate or get a quote from our team. A loan officer will guide you through the process." },
+];
 
 const purchaseEmptyContent = {
   hero: {
@@ -33,74 +40,41 @@ const purchaseEmptyContent = {
     ctaLabel: "Get a Quote",
     backgroundImage: "",
   },
+  faq: { faqs: defaultPurchaseFaqs.map((f) => ({ ...f })) },
 };
 
-const sectionOrder = ["hero", "loanOptions", "advantage"];
-const sectionLabels = { hero: "Hero", loanOptions: "Loan Options", advantage: "Advantage" };
+const sectionOrder = ["hero", "loanOptions", "advantage", "faq"];
+const sectionLabels = { hero: "Hero", loanOptions: "Loan Options", advantage: "Advantage", faq: "FAQ" };
 
 function mergePurchaseContent(empty, data) {
-  // Helper to get value or default (handles null, undefined, but allows empty strings)
-  const getValue = (dataVal, defaultVal) => {
-    return dataVal !== null && dataVal !== undefined ? dataVal : defaultVal;
-  };
-  
-  // Merge hero section, preserving imageUrls array properly
   const heroData = data?.hero || {};
-  const heroImageUrls = Array.isArray(heroData.imageUrls) && heroData.imageUrls.length > 0 
-    ? heroData.imageUrls 
-    : (empty.hero.imageUrls || []);
+  const heroImageUrls = Array.isArray(heroData.imageUrls) && heroData.imageUrls.length > 0 ? heroData.imageUrls : (empty.hero.imageUrls || []);
   const heroUrls = [...heroImageUrls];
   while (heroUrls.length < 4) heroUrls.push("");
-  
-  // Merge loanOptions section - check if data.loanOptions exists (even if empty object)
-  const loanOptionsData = data && 'loanOptions' in data ? data.loanOptions : {};
-  // Merge cards: use data cards if available, otherwise use defaults, then pad to 5
+
+  const loanOptionsData = data?.loanOptions || {};
   let cards = [];
   if (Array.isArray(loanOptionsData.cards) && loanOptionsData.cards.length > 0) {
-    // Use data cards, but merge with defaults for missing fields in each card
     cards = loanOptionsData.cards.map((card, i) => ({
-      title: getValue(card?.title, empty.loanOptions.cards[i]?.title || ""),
-      description: getValue(card?.description, empty.loanOptions.cards[i]?.description || ""),
-      image: getValue(card?.image, empty.loanOptions.cards[i]?.image || ""),
-      route: getValue(card?.route, empty.loanOptions.cards[i]?.route || "")
+      title: (card?.title && card.title.trim()) ? card.title : (empty.loanOptions.cards[i]?.title || ""),
+      description: (card?.description && card.description.trim()) ? card.description : (empty.loanOptions.cards[i]?.description || ""),
+      image: card?.image ?? empty.loanOptions.cards[i]?.image ?? "",
+      route: (card?.route && card.route.trim()) ? card.route : (empty.loanOptions.cards[i]?.route || ""),
     }));
   } else {
-    // Use default cards
     cards = [...(empty.loanOptions.cards || [])];
   }
-  // Pad to 5 cards
   while (cards.length < 5) cards.push({ title: "", description: "", image: "", route: "" });
-  
-  // Merge advantage section - check if data.advantage exists (even if empty object)
-  const advantageData = data && 'advantage' in data ? data.advantage : {};
-  
-  const out = {
-    hero: { 
-      ...empty.hero, 
-      mainHeading: getValue(heroData.mainHeading, empty.hero.mainHeading),
-      subText: getValue(heroData.subText, empty.hero.subText),
-      ctaPrimaryLabel: getValue(heroData.ctaPrimaryLabel, empty.hero.ctaPrimaryLabel),
-      ctaSecondaryLabel: getValue(heroData.ctaSecondaryLabel, empty.hero.ctaSecondaryLabel),
-      factHeading: getValue(heroData.factHeading, empty.hero.factHeading),
-      factText: getValue(heroData.factText, empty.hero.factText),
-      imageUrls: heroUrls.slice(0, 4)
-    },
-    loanOptions: { 
-      ...empty.loanOptions,
-      heading: getValue(loanOptionsData.heading, empty.loanOptions.heading),
-      subtext: getValue(loanOptionsData.subtext, empty.loanOptions.subtext),
-      cards: cards.slice(0, 5)
-    },
-    advantage: { 
-      ...empty.advantage,
-      heading: getValue(advantageData.heading, empty.advantage.heading),
-      bodyText: getValue(advantageData.bodyText, empty.advantage.bodyText),
-      ctaLabel: getValue(advantageData.ctaLabel, empty.advantage.ctaLabel),
-      backgroundImage: getValue(advantageData.backgroundImage, empty.advantage.backgroundImage)
-    },
+
+  const faqData = data?.faq;
+  const faqs = Array.isArray(faqData?.faqs) && faqData.faqs.length > 0 ? faqData.faqs : empty.faq.faqs;
+
+  return {
+    hero: { ...mergeWithDefaults(empty.hero, data?.hero), imageUrls: heroUrls.slice(0, 4) },
+    loanOptions: { ...mergeWithDefaults(empty.loanOptions, data?.loanOptions), cards: cards.slice(0, 5) },
+    advantage: mergeWithDefaults(empty.advantage, data?.advantage),
+    faq: { faqs },
   };
-  
-  return out;
 }
 
 const inputStyle = { width: "100%", padding: "8px 12px", marginBottom: 8, border: "1px solid #ccc", borderRadius: 6 };
@@ -139,6 +113,21 @@ export default function AdminPurchaseContent() {
     setContent((c) => {
       const arr = [...(c[section]?.[field] || [])];
       arr[index] = { ...(arr[index] || {}), ...itemUpdate };
+      return { ...c, [section]: { ...(c[section] || {}), [field]: arr } };
+    });
+  };
+
+  const addArrayItem = (section, field, defaultItem) => {
+    setContent((c) => {
+      const arr = [...(c[section]?.[field] || []), defaultItem];
+      return { ...c, [section]: { ...(c[section] || {}), [field]: arr } };
+    });
+  };
+
+  const removeArrayItem = (section, field, index) => {
+    setContent((c) => {
+      const arr = [...(c[section]?.[field] || [])];
+      arr.splice(index, 1);
       return { ...c, [section]: { ...(c[section] || {}), [field]: arr } };
     });
   };
@@ -317,6 +306,20 @@ export default function AdminPurchaseContent() {
                 setImageUploading(null);
               }} disabled={!!imageUploading} style={{ marginBottom: 0 }} />
               {imageUploading === "advantage-bg" && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
+            </>
+          )}
+
+          {activeTab === "faq" && (
+            <>
+              <label style={labelStyle}>FAQs</label>
+              {(content.faq?.faqs || []).map((faq, i) => (
+                <div key={i} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+                  <input style={inputStyle} placeholder="Question" value={faq.q || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, q: e.target.value })} />
+                  <textarea style={{ ...inputStyle, minHeight: 60 }} placeholder="Answer" value={faq.a || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, a: e.target.value })} />
+                  <button type="button" onClick={() => removeArrayItem("faq", "faqs", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => addArrayItem("faq", "faqs", { q: "", a: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add FAQ</button>
             </>
           )}
         </div>

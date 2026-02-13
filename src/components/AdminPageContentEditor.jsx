@@ -51,6 +51,21 @@ export default function AdminPageContentEditor({
     });
   };
 
+  const addArrayItem = (section, field, defaultItem) => {
+    setContent((c) => {
+      const arr = [...(c[section]?.[field] || []), defaultItem];
+      return { ...c, [section]: { ...(c[section] || {}), [field]: arr } };
+    });
+  };
+
+  const removeArrayItem = (section, field, index) => {
+    setContent((c) => {
+      const arr = [...(c[section]?.[field] || [])];
+      arr.splice(index, 1);
+      return { ...c, [section]: { ...(c[section] || {}), [field]: arr } };
+    });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError("");
@@ -118,6 +133,8 @@ export default function AdminPageContentEditor({
         setError,
         isImageUrl,
         thumbStyle,
+        addArrayItem,
+        removeArrayItem,
       })}
         </div>
       </div>

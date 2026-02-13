@@ -29,27 +29,32 @@ function getEmptyContent() {
       forgivableHeading: "Forgivable DPA",
       forgivableItems: defaultForgivable,
       ctaLabel: "Get a Quote",
+      imageUrl: "",
     },
+    faq: { faqs: [] },
   };
 }
 
 function mergeContent(empty, data) {
   const repay = Array.isArray(data?.factFiction?.repayableItems) && data.factFiction.repayableItems.length > 0 ? data.factFiction.repayableItems : empty.factFiction.repayableItems;
   const forg = Array.isArray(data?.factFiction?.forgivableItems) && data.factFiction.forgivableItems.length > 0 ? data.factFiction.forgivableItems : empty.factFiction.forgivableItems;
+  const faqData = data?.faq;
+  const faqs = Array.isArray(faqData?.faqs) && faqData.faqs.length > 0 ? faqData.faqs : empty.faq.faqs;
   return {
     hero: { ...empty.hero, ...(data?.hero || {}) },
     overview: { ...empty.overview, ...(data?.overview || {}) },
     factFiction: { ...empty.factFiction, ...(data?.factFiction || {}), repayableItems: repay, forgivableItems: forg },
+    faq: { faqs },
   };
 }
 
-const sectionOrder = ["hero", "overview", "factFiction"];
-const sectionLabels = { hero: "Hero", overview: "Overview", factFiction: "Fact vs Fiction" };
+const sectionOrder = ["hero", "overview", "factFiction", "faq"];
+const sectionLabels = { hero: "Hero", overview: "Overview", factFiction: "Fact vs Fiction", faq: "FAQ" };
 
-function renderForm(activeTab, content, updateSection, _updateArray, opts = {}) {
+function renderForm(activeTab, content, updateSection, updateArray, opts = {}) {
   const s = content[activeTab] || {};
   const set = (field, value) => updateSection(activeTab, field, value);
-  const { inputStyle, labelStyle } = opts;
+  const { inputStyle, labelStyle, addArrayItem, removeArrayItem } = opts;
   if (activeTab === "hero") {
     return (
       <>
@@ -92,6 +97,23 @@ function renderForm(activeTab, content, updateSection, _updateArray, opts = {}) 
         <textarea style={{ ...inputStyle, minHeight: 100 }} value={(s.forgivableItems || []).join("\n")} onChange={(e) => updateSection("factFiction", "forgivableItems", e.target.value.split("\n").filter(Boolean))} />
         <label style={labelStyle}>CTA Label</label>
         <input style={inputStyle} value={s.ctaLabel || ""} onChange={(e) => set("ctaLabel", e.target.value)} />
+        {renderImageField("factFiction", "imageUrl", s.imageUrl, set, opts)}
+      </>
+    );
+  }
+  if (activeTab === "faq") {
+    const faqs = content.faq?.faqs || [];
+    return (
+      <>
+        <label style={labelStyle}>FAQs</label>
+        {faqs.map((faq, i) => (
+          <div key={i} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+            <input style={inputStyle} placeholder="Question" value={faq.q || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, q: e.target.value })} />
+            <textarea style={{ ...inputStyle, minHeight: 60 }} placeholder="Answer" value={faq.a || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, a: e.target.value })} />
+            {removeArrayItem && <button type="button" onClick={() => removeArrayItem("faq", "faqs", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>}
+          </div>
+        ))}
+        {addArrayItem && <button type="button" onClick={() => addArrayItem("faq", "faqs", { q: "", a: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add FAQ</button>}
       </>
     );
   }

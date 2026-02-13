@@ -1,5 +1,6 @@
 import React from "react";
 import AdminPageContentEditor from "../components/AdminPageContentEditor";
+import { mergeWithDefaults } from "../utils/contentMerge";
 
 const PAGE_KEY = "renovation-loans";
 const TITLE = "Renovation Loans Content";
@@ -15,21 +16,26 @@ function getEmptyContent() {
     },
     what: { heading: "", description: "", ctaLabel: "" },
     homestyle: { heading: "", description: "", ctaLabel: "", imageUrl: "" },
+    faq: { faqs: [] },
   };
 }
 
 function mergeContent(empty, data) {
+  const faqData = data?.faq;
+  const faqs = Array.isArray(faqData?.faqs) && faqData.faqs.length > 0 ? faqData.faqs : empty.faq.faqs;
   return {
-    hero: { ...empty.hero, ...(data?.hero || {}) },
-    what: { ...empty.what, ...(data?.what || {}) },
-    homestyle: { ...empty.homestyle, ...(data?.homestyle || {}) },
+    hero: mergeWithDefaults(empty.hero, data?.hero),
+    what: mergeWithDefaults(empty.what, data?.what),
+    homestyle: mergeWithDefaults(empty.homestyle, data?.homestyle),
+    faq: { faqs },
   };
 }
 
-const sectionOrder = ["hero", "what", "homestyle"];
-const sectionLabels = { hero: "Hero", what: "What are Renovation Loans", homestyle: "Homestyle" };
+const sectionOrder = ["hero", "what", "homestyle", "faq"];
+const sectionLabels = { hero: "Hero", what: "What are Renovation Loans", homestyle: "Homestyle", faq: "FAQ" };
 
-function renderForm(activeTab, content, updateSection, _updateArray, { inputStyle, labelStyle }) {
+function renderForm(activeTab, content, updateSection, updateArray, opts = {}) {
+  const { inputStyle, labelStyle, addArrayItem, removeArrayItem } = opts;
   const s = content[activeTab] || {};
   const set = (field, value) => updateSection(activeTab, field, value);
   const base = (
@@ -52,6 +58,22 @@ function renderForm(activeTab, content, updateSection, _updateArray, { inputStyl
     );
   }
   if (activeTab === "what") return base;
+  if (activeTab === "faq") {
+    const faqs = content.faq?.faqs || [];
+    return (
+      <>
+        <label style={labelStyle}>FAQs</label>
+        {faqs.map((faq, i) => (
+          <div key={i} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+            <input style={inputStyle} placeholder="Question" value={faq.q || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, q: e.target.value })} />
+            <textarea style={{ ...inputStyle, minHeight: 60 }} placeholder="Answer" value={faq.a || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, a: e.target.value })} />
+            {removeArrayItem && <button type="button" onClick={() => removeArrayItem("faq", "faqs", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>}
+          </div>
+        ))}
+        {addArrayItem && <button type="button" onClick={() => addArrayItem("faq", "faqs", { q: "", a: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add FAQ</button>}
+      </>
+    );
+  }
   return <p>Select a section.</p>;
 }
 

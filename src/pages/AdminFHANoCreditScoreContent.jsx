@@ -35,26 +35,31 @@ function getEmptyContent() {
       body: "We understand that every financial situation is unique. That's why we accept a wide range of non-traditional credit references to help you qualify for a mortgage, including:",
       items: defaultReferencesItems,
       ctaLabel: "Get a Quote",
+      imageUrl: "",
     },
+    faq: { faqs: [] },
   };
 }
 
 function mergeContent(empty, data) {
   const refItems = Array.isArray(data?.references?.items) && data.references.items.length > 0 ? data.references.items : empty.references.items;
+  const faqData = data?.faq;
+  const faqs = Array.isArray(faqData?.faqs) && faqData.faqs.length > 0 ? faqData.faqs : empty.faq.faqs;
   return {
     hero: { ...empty.hero, ...(data?.hero || {}) },
     overview: { ...empty.overview, ...(data?.overview || {}) },
     references: { ...empty.references, ...(data?.references || {}), items: refItems },
+    faq: { faqs },
   };
 }
 
-const sectionOrder = ["hero", "overview", "references"];
-const sectionLabels = { hero: "Hero", overview: "Overview", references: "References" };
+const sectionOrder = ["hero", "overview", "references", "faq"];
+const sectionLabels = { hero: "Hero", overview: "Overview", references: "References", faq: "FAQ" };
 
 function renderForm(activeTab, content, updateSection, updateArray, opts = {}) {
   const s = content[activeTab] || {};
   const set = (field, value) => updateSection(activeTab, field, value);
-  const { inputStyle, labelStyle } = opts;
+  const { inputStyle, labelStyle, addArrayItem, removeArrayItem } = opts;
   if (activeTab === "hero") {
     return (
       <>
@@ -92,8 +97,25 @@ function renderForm(activeTab, content, updateSection, updateArray, opts = {}) {
         <textarea style={{ ...inputStyle, minHeight: 80 }} value={s.body || ""} onChange={(e) => set("body", e.target.value)} />
         <label style={labelStyle}>CTA Label</label>
         <input style={inputStyle} value={s.ctaLabel || ""} onChange={(e) => set("ctaLabel", e.target.value)} />
+        {renderImageField("references", "imageUrl", s.imageUrl, set, opts)}
         <label style={labelStyle}>List items (one per line)</label>
         <textarea style={{ ...inputStyle, minHeight: 120 }} value={(items || []).join("\n")} onChange={(e) => updateSection("references", "items", e.target.value.split("\n").filter(Boolean))} placeholder="One item per line" />
+      </>
+    );
+  }
+  if (activeTab === "faq") {
+    const faqs = content.faq?.faqs || [];
+    return (
+      <>
+        <label style={labelStyle}>FAQs</label>
+        {faqs.map((faq, i) => (
+          <div key={i} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+            <input style={inputStyle} placeholder="Question" value={faq.q || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, q: e.target.value })} />
+            <textarea style={{ ...inputStyle, minHeight: 60 }} placeholder="Answer" value={faq.a || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, a: e.target.value })} />
+            {removeArrayItem && <button type="button" onClick={() => removeArrayItem("faq", "faqs", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>}
+          </div>
+        ))}
+        {addArrayItem && <button type="button" onClick={() => addArrayItem("faq", "faqs", { q: "", a: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add FAQ</button>}
       </>
     );
   }

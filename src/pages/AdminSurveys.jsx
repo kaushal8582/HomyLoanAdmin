@@ -177,6 +177,38 @@ export default function AdminSurveys() {
     });
   };
 
+  const getSurveyFieldLabel = (fieldName, value) => {
+    if (value === null || value === undefined) return null;
+    if (typeof value === "string") return value;
+    const journeyLabels = { 1: "Looking at homes & listings", 2: "I signed a purchase agreement", 3: "Offer pending / found a house" };
+    const timeframeLabels = { 1: "Within 30 days", 2: "Within 2-3 months", 3: "Within 6 months" };
+    const usageTypeLabels = { 1: "Primary Residence", 2: "Secondary Residence", 3: "Investment Property" };
+    const yesNoLabels = { 1: "Yes", 2: "No" };
+    const militaryAffiliationLabels = { 1: "No, I haven't served", 2: "Yes, I'm currently serving", 3: "Yes, I served in the past", 4: "Yes, I'm a surviving spouse" };
+    const serviceTypeLabels = { 1: "Regular military", 2: "Reserves", 3: "National Guard" };
+    const fundsSourceLabels = { 1: "My financial account", 2: "Gifts" };
+    const addressTimelineLabels = { 1: "Own", 2: "Rent", 3: "i don't own or rent" };
+    const homePriceLabels = { 1: "0k to 300k", 2: "300k to 500k", 3: "500k to 1m", 4: "1m+" };
+    const maps = {
+      journey: journeyLabels,
+      timeframe: timeframeLabels,
+      usageType: usageTypeLabels,
+      workingWithAgent: yesNoLabels,
+      mailingAddressConfirm: yesNoLabels,
+      militaryAffiliation: militaryAffiliationLabels,
+      affiliation: militaryAffiliationLabels,
+      serviceType: serviceTypeLabels,
+      marriedStatus: yesNoLabels,
+      fundsSource: fundsSourceLabels,
+      addressTimeline: addressTimelineLabels,
+      homePrice: homePriceLabels,
+    };
+    const labels = maps[fieldName];
+    return labels ? (labels[value] ?? value) : null;
+  };
+
+  const displayValue = (fieldName, value) => getSurveyFieldLabel(fieldName, value) ?? value;
+
   const renderField = (label, value) => {
     if (value === null || value === undefined || value === "") return null;
     return (
@@ -187,15 +219,22 @@ export default function AdminSurveys() {
     );
   };
 
-  const renderObject = (label, obj) => {
+  const renderObject = (label, obj, valueMapper) => {
     if (!obj || typeof obj !== "object") return null;
     return (
       <div style={formStyles.section}>
         <div style={formStyles.sectionTitle}>{label}</div>
-        {Object.entries(obj).map(([key, value]) => renderField(key, value))}
+        {Object.entries(obj).map(([key, value]) => renderField(key, valueMapper ? (getSurveyFieldLabel(key, value) ?? value) : value))}
       </div>
     );
   };
+
+  const renderSection = (title, children) => (
+    <div style={formStyles.section}>
+      <div style={formStyles.sectionTitle}>{title}</div>
+      {children}
+    </div>
+  );
 
   return (
     <div>
@@ -312,35 +351,68 @@ export default function AdminSurveys() {
           <div style={formStyles.box} onClick={(e) => e.stopPropagation()}>
             <h2 style={{ margin: "0 0 16px" }}>Survey Details</h2>
             <div style={{ maxHeight: "70vh", overflow: "auto" }}>
-              {renderField("ID", viewingSurvey._id)}
-              {renderField("First Name", viewingSurvey.firstName)}
-              {renderField("Middle Name", viewingSurvey.middleName)}
-              {renderField("Last Name", viewingSurvey.lastName)}
-              {renderField("Email", viewingSurvey.email)}
-              {renderField("Phone", viewingSurvey.phone)}
-              {renderField("Journey", viewingSurvey.journey)}
-              {renderField("Timeframe", viewingSurvey.timeframe)}
-              {renderField("Home Price", viewingSurvey.homePrice)}
-              {renderField("Home Location", viewingSurvey.homeLocation)}
-              {renderField("Home Type", viewingSurvey.homeType)}
-              {renderField("Units", viewingSurvey.units)}
-              {renderField("Usage Type", viewingSurvey.usageType)}
-              {renderField("Working With Agent", viewingSurvey.workingWithAgent)}
-              {renderObject("Agent Contact", viewingSurvey.agentContact)}
-              {renderField("Street", viewingSurvey.street)}
-              {renderField("Apt", viewingSurvey.apt)}
-              {renderField("City", viewingSurvey.city)}
-              {renderField("State", viewingSurvey.state)}
-              {renderField("Zip", viewingSurvey.zip)}
-              {renderField("Mailing Address Confirm", viewingSurvey.mailingAddressConfirm)}
-              {renderObject("Mailing Address", viewingSurvey.mailingAddress)}
-              {renderObject("Military", viewingSurvey.military)}
-              {renderField("Married Status", viewingSurvey.marriedStatus)}
-              {renderObject("Spouse Info", viewingSurvey.spouseInfo)}
-              {renderField("Yearly Income", viewingSurvey.yearlyIncome)}
-              {renderField("Funds Source", viewingSurvey.fundsSource)}
-              {renderField("Submitted At", formatDate(viewingSurvey.createdAt))}
-              {renderField("Last Updated", formatDate(viewingSurvey.updatedAt))}
+              {renderSection("Contact", (
+                <>
+                  {renderField("ID", viewingSurvey._id)}
+                  {renderField("First Name", viewingSurvey.firstName)}
+                  {renderField("Middle Name", viewingSurvey.middleName)}
+                  {renderField("Last Name", viewingSurvey.lastName)}
+                  {renderField("Email", viewingSurvey.email)}
+                  {renderField("Phone", viewingSurvey.phone)}
+                </>
+              ))}
+              {renderSection("Property & Journey", (
+                <>
+                  {renderField("Journey", displayValue("journey", viewingSurvey.journey))}
+                  {renderField("Timeframe", displayValue("timeframe", viewingSurvey.timeframe))}
+                  {renderField("Home Price", displayValue("homePrice", viewingSurvey.homePrice))}
+                  {renderField("Home Location", viewingSurvey.homeLocation)}
+                  {renderField("Home Type", viewingSurvey.homeType)}
+                  {renderField("Units", viewingSurvey.units)}
+                  {renderField("Usage Type", displayValue("usageType", viewingSurvey.usageType))}
+                  {renderField("Address Timeline", displayValue("addressTimeline", viewingSurvey.addressTimeline))}
+                </>
+              ))}
+              {renderSection("Agent", (
+                <>
+                  {renderField("Working With Agent", displayValue("workingWithAgent", viewingSurvey.workingWithAgent))}
+                  {renderObject("Agent Contact", viewingSurvey.agentContact)}
+                </>
+              ))}
+              {renderSection("Address", (
+                <>
+                  {renderField("Street", viewingSurvey.street)}
+                  {renderField("Apt", viewingSurvey.apt)}
+                  {renderField("City", viewingSurvey.city)}
+                  {renderField("State", viewingSurvey.state)}
+                  {renderField("Zip", viewingSurvey.zip)}
+                  {renderField("Mailing Address Confirm", displayValue("mailingAddressConfirm", viewingSurvey.mailingAddressConfirm))}
+                  {renderObject("Mailing Address", viewingSurvey.mailingAddress)}
+                </>
+              ))}
+              {renderSection("Military", (
+                <>
+                  {renderField("Military Affiliation", displayValue("militaryAffiliation", viewingSurvey.militaryAffiliation))}
+                  {renderField("ETS Date", viewingSurvey.etsDate)}
+                  {renderField("Branch of Service", viewingSurvey.branchOfService)}
+                  {renderField("Service Type", displayValue("serviceType", viewingSurvey.serviceType))}
+                  {viewingSurvey.military && Object.keys(viewingSurvey.military).length > 0 && renderObject("Military (details)", viewingSurvey.military, true)}
+                </>
+              ))}
+              {renderSection("Marital & Financial", (
+                <>
+                  {renderField("Married Status", displayValue("marriedStatus", viewingSurvey.marriedStatus))}
+                  {renderObject("Spouse Info", viewingSurvey.spouseInfo)}
+                  {renderField("Yearly Income", viewingSurvey.yearlyIncome)}
+                  {renderField("Funds Source", displayValue("fundsSource", viewingSurvey.fundsSource))}
+                </>
+              ))}
+              {renderSection("Meta", (
+                <>
+                  {renderField("Submitted At", formatDate(viewingSurvey.createdAt))}
+                  {renderField("Last Updated", formatDate(viewingSurvey.updatedAt))}
+                </>
+              ))}
             </div>
             <div style={formStyles.row}>
               <button type="button" onClick={() => { setViewOpen(false); openEdit(viewingSurvey._id); }} style={formStyles.btn(true)}>

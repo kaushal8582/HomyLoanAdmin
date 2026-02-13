@@ -1,5 +1,6 @@
 import React from "react";
 import AdminPageContentEditor, { renderHeroVideoField, renderImageField } from "../components/AdminPageContentEditor";
+import { mergeWithDefaults } from "../utils/contentMerge";
 
 const PAGE_KEY = "fixed-adjustable";
 const TITLE = "Fixed vs Adjustable Content";
@@ -21,23 +22,27 @@ function getEmptyContent() {
       armTitle: "Adjustable-Rate Mortgage (ARM)",
       armBody: "An ARM has a fixed interest rate for an initial period, then adjusts based on market conditions. For example, a 5/1 ARM keeps the rate fixed for 5 years, then adjusts annually. This can offer lower initial rates and payments, but your monthly payment may fluctuate once the adjustable phase begins.",
     },
+    faq: { faqs: [] },
   };
 }
 
 function mergeContent(empty, data) {
+  const faqData = data?.faq;
+  const faqs = Array.isArray(faqData?.faqs) && faqData.faqs.length > 0 ? faqData.faqs : empty.faq.faqs;
   return {
-    hero: { ...empty.hero, ...(data?.hero || {}) },
-    requirements: { ...empty.requirements, ...(data?.requirements || {}) },
+    hero: mergeWithDefaults(empty.hero, data?.hero),
+    requirements: mergeWithDefaults(empty.requirements, data?.requirements),
+    faq: { faqs },
   };
 }
 
-const sectionOrder = ["hero", "requirements"];
-const sectionLabels = { hero: "Hero", requirements: "Requirements" };
+const sectionOrder = ["hero", "requirements", "faq"];
+const sectionLabels = { hero: "Hero", requirements: "Requirements", faq: "FAQ" };
 
-function renderForm(activeTab, content, updateSection, _updateArray, opts = {}) {
+function renderForm(activeTab, content, updateSection, updateArray, opts = {}) {
   const s = content[activeTab] || {};
   const set = (field, value) => updateSection(activeTab, field, value);
-  const { inputStyle, labelStyle } = opts;
+  const { inputStyle, labelStyle, addArrayItem, removeArrayItem } = opts;
   if (activeTab === "hero") {
     return (
       <>
@@ -67,6 +72,22 @@ function renderForm(activeTab, content, updateSection, _updateArray, opts = {}) 
         <input style={inputStyle} value={s.armTitle || ""} onChange={(e) => set("armTitle", e.target.value)} />
         <label style={labelStyle}>ARM body</label>
         <textarea style={{ ...inputStyle, minHeight: 80 }} value={s.armBody || ""} onChange={(e) => set("armBody", e.target.value)} />
+      </>
+    );
+  }
+  if (activeTab === "faq") {
+    const faqs = content.faq?.faqs || [];
+    return (
+      <>
+        <label style={labelStyle}>FAQs</label>
+        {faqs.map((faq, i) => (
+          <div key={i} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+            <input style={inputStyle} placeholder="Question" value={faq.q || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, q: e.target.value })} />
+            <textarea style={{ ...inputStyle, minHeight: 60 }} placeholder="Answer" value={faq.a || ""} onChange={(e) => updateArray("faq", "faqs", i, { ...faq, a: e.target.value })} />
+            {removeArrayItem && <button type="button" onClick={() => removeArrayItem("faq", "faqs", i)} style={{ marginTop: 8, padding: "6px 12px", background: "#999", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>}
+          </div>
+        ))}
+        {addArrayItem && <button type="button" onClick={() => addArrayItem("faq", "faqs", { q: "", a: "" })} style={{ padding: "8px 16px", background: "#1a1a2e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>+ Add FAQ</button>}
       </>
     );
   }

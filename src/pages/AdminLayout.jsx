@@ -1,14 +1,100 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { adminLogout, getStoredAdmin } from "../services/adminApi";
+
+const SIDEBAR_GROUPS = [
+  {
+    id: "refinance",
+    label: "Refinance",
+    links: [{ to: "/content/refinance2", label: "Refinance" }],
+  },
+  {
+    id: "purchase",
+    label: "Purchase",
+    links: [
+      { to: "/content/purchase", label: "Buy a Home" },
+      { to: "/content/refinance", label: "Save money" },
+      { to: "/content/va-loan", label: "VA Loan" },
+      { to: "/content/jumbo-loans", label: "Jumbo Loans" },
+      { to: "/content/renovation-loans", label: "Renovation" },
+      { to: "/content/downpayment", label: "Down Payment Assistance" },
+      { to: "/content/usda", label: "USDA" },
+      { to: "/content/credit-challenged", label: "Credit Challenged" },
+      { to: "/content/reverse", label: "Reverse" },
+    ],
+  },
+  {
+    id: "loanOptions",
+    label: "Loan Options",
+    links: [
+      { to: "/content/conventional-loan", label: "Conventional Loan" },
+      { to: "/content/fha-loan", label: "FHA Loan" },
+      { to: "/content/home-select", label: "Home Select" },
+      { to: "/content/portfolio-lending", label: "Portfolio Lending" },
+      { to: "/content/fha-approved-condos", label: "FHA Approved Condos" },
+      { to: "/content/fha-no-credit", label: "FHA No Credit" },
+      { to: "/content/usda-renovation", label: "USDA Renovation" },
+      { to: "/content/physician-loan", label: "Physician Loan" },
+      { to: "/content/heloc", label: "HELOC" },
+      { to: "/content/usdaloan", label: "USDA Loan" },
+      { to: "/content/arrive-home", label: "Arrive Home" },
+      { to: "/content/fixed-adjustable", label: "Fixed vs Adjustable" },
+      { to: "/content/self-employed", label: "Self Employed" },
+      { to: "/content/firsttimehomebuyers", label: "First Time Home Buyers" },
+    ],
+  },
+  {
+    id: "applyNow",
+    label: "Apply Now",
+    links: [{ to: "/content/applynow", label: "Apply Now" }],
+  },
+  {
+    id: "resources",
+    label: "Resources",
+    links: [
+      { to: "/content/amp", label: "HomyLoans AMP" },
+      { to: "/content/mortgagepayment", label: "Mortgage Payment" },
+      { to: "/content/homebuyer", label: "Homebuyers Guide" },
+      { to: "/content/mortgagetermdefined", label: "Mortgage Terms Defined" },
+      { to: "/content/findofficer", label: "Locations" },
+    ],
+  },
+  {
+    id: "careers",
+    label: "Careers",
+    links: [
+      { to: "/content/careermeetpurpose", label: "Branch & LO Opportunity" },
+      { to: "/content/trustedpartner", label: "Operations" },
+    ],
+  },
+  {
+    id: "ourStory",
+    label: "Our Story",
+    links: [
+      { to: "/content/aboutus", label: "About Us" },
+      { to: "/content/leadership", label: "Leadership" },
+      { to: "/content/goodhuman", label: "Be A Good Human" },
+      { to: "/content/reviews", label: "Reviews" },
+    ],
+  },
+];
+
+const initialExpanded = Object.fromEntries(
+  SIDEBAR_GROUPS.map((g) => [g.id, false])
+);
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const admin = getStoredAdmin();
+  const [expandedGroups, setExpandedGroups] = useState(initialExpanded);
 
   const handleLogout = () => {
     adminLogout();
     navigate("/login", { replace: true });
+  };
+
+  const toggleGroup = (id) => {
+    setExpandedGroups((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const navStyle = ({ isActive }) => ({
@@ -18,6 +104,25 @@ export default function AdminLayout() {
     background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
     borderRadius: 8,
   });
+
+  const groupHeaderStyle = {
+    color: "#888",
+    fontSize: 11,
+    fontWeight: 600,
+    marginTop: 12,
+    marginBottom: 4,
+    paddingLeft: 4,
+    paddingRight: 8,
+    paddingTop: 6,
+    paddingBottom: 6,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 8,
+  };
+
+  const subLinkWrap = { paddingLeft: 20, display: "flex", flexDirection: "column", gap: 4 };
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
@@ -55,49 +160,55 @@ export default function AdminLayout() {
           <NavLink to="/homepage" style={navStyle}>
             Homepage Content
           </NavLink>
-          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Refinance</div>
-          <NavLink to="/content/refinance2" style={navStyle}>Refinance</NavLink>
-          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Purchase</div>
-          <NavLink to="/content/purchase" style={navStyle}>Buy a Home</NavLink>
-          <NavLink to="/content/refinance" style={navStyle}>Save money</NavLink>
-          <NavLink to="/content/va-loan" style={navStyle}>VA Loan</NavLink>
-          <NavLink to="/content/jumbo-loans" style={navStyle}>Jumbo Loans</NavLink>
-          <NavLink to="/content/renovation-loans" style={navStyle}>Renovation</NavLink>
-          <NavLink to="/content/downpayment" style={navStyle}>Down Payment Assistance</NavLink>
-          <NavLink to="/content/usda" style={navStyle}>USDA</NavLink>
-          <NavLink to="/content/credit-challenged" style={navStyle}>Credit Challenged</NavLink>
-          <NavLink to="/content/reverse" style={navStyle}>Reverse</NavLink>
-          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Loan Options</div>
-          <NavLink to="/content/conventional-loan" style={navStyle}>Conventional Loan</NavLink>
-          <NavLink to="/content/fha-loan" style={navStyle}>FHA Loan</NavLink>
-          <NavLink to="/content/home-select" style={navStyle}>Home Select</NavLink>
-          <NavLink to="/content/portfolio-lending" style={navStyle}>Portfolio Lending</NavLink>
-          <NavLink to="/content/fha-approved-condos" style={navStyle}>FHA Approved Condos</NavLink>
-          <NavLink to="/content/fha-no-credit" style={navStyle}>FHA No Credit</NavLink>
-          <NavLink to="/content/usda-renovation" style={navStyle}>USDA Renovation</NavLink>
-          <NavLink to="/content/physician-loan" style={navStyle}>Physician Loan</NavLink>
-          <NavLink to="/content/heloc" style={navStyle}>HELOC</NavLink>
-          <NavLink to="/content/usdaloan" style={navStyle}>USDA Loan</NavLink>
-          <NavLink to="/content/arrive-home" style={navStyle}>Arrive Home</NavLink>
-          <NavLink to="/content/fixed-adjustable" style={navStyle}>Fixed vs Adjustable</NavLink>
-          <NavLink to="/content/self-employed" style={navStyle}>Self Employed</NavLink>
-          <NavLink to="/content/firsttimehomebuyers" style={navStyle}>First Time Home Buyers</NavLink>
-          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Apply Now</div>
-          <NavLink to="/content/applynow" style={navStyle}>Apply Now</NavLink>
-          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Resources</div>
-          <NavLink to="/content/amp" style={navStyle}>HomyLoans AMP</NavLink>
-          <NavLink to="/content/mortgagepayment" style={navStyle}>Mortgage Payment</NavLink>
-          <NavLink to="/content/homebuyer" style={navStyle}>Homebuyers Guide</NavLink>
-          <NavLink to="/content/mortgagetermdefined" style={navStyle}>Mortgage Terms Defined</NavLink>
-          <NavLink to="/content/findofficer" style={navStyle}>Locations</NavLink>
-          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Careers</div>
-          <NavLink to="/content/careermeetpurpose" style={navStyle}>Branch & LO Opportunity</NavLink>
-          <NavLink to="/content/trustedpartner" style={navStyle}>Operations</NavLink>
-          <div style={{ color: "#888", fontSize: 11, fontWeight: 600, marginTop: 12, marginBottom: 4, paddingLeft: 4 }}>Our Story</div>
-          <NavLink to="/content/aboutus" style={navStyle}>About Us</NavLink>
-          <NavLink to="/content/leadership" style={navStyle}>Leadership</NavLink>
-          <NavLink to="/content/goodhuman" style={navStyle}>Be A Good Human</NavLink>
-          <NavLink to="/content/reviews" style={navStyle}>Reviews</NavLink>
+
+          {SIDEBAR_GROUPS.map((group) => {
+            const isOpen = expandedGroups[group.id];
+            return (
+              <div key={group.id}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => toggleGroup(group.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleGroup(group.id);
+                    }
+                  }}
+                  style={{
+                    ...groupHeaderStyle,
+                    background: "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                    e.currentTarget.style.color = "#aaa";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "#888";
+                  }}
+                >
+                  <span style={{ transition: "transform 0.2s" }}>
+                    {isOpen ? "▼" : "▶"}
+                  </span>
+                  {group.label}
+                </div>
+                {isOpen && (
+                  <div style={subLinkWrap}>
+                    {group.links.map((link) => (
+                      <NavLink
+                        key={link.to}
+                        to={link.to}
+                        style={navStyle}
+                      >
+                        {link.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
         <div style={{ marginTop: "auto", paddingTop: 24 }}>
           {admin && (
