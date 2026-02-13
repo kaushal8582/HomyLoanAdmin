@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./pages/AdminLayout";
 import AdminBlogs from "./pages/AdminBlogs";
+import AdminJobs from "./pages/AdminJobs";
 import AdminHomepage from "./pages/AdminHomepage";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminPress from "./pages/AdminPress";
@@ -65,6 +66,7 @@ function App() {
       >
         <Route index element={<Navigate to="/blogs" replace />} />
         <Route path="blogs" element={<AdminBlogs />} />
+        <Route path="jobs" element={<AdminJobs />} />
         <Route path="press" element={<AdminPress />} />
         <Route path="subscriptions" element={<AdminSubscriptions />} />
         <Route path="surveys" element={<AdminSurveys />} />

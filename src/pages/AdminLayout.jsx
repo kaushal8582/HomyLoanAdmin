@@ -40,6 +40,9 @@ export default function AdminLayout() {
           <NavLink to="/blogs" style={navStyle}>
             Blogs
           </NavLink>
+          <NavLink to="/jobs" style={navStyle}>
+            Jobs
+          </NavLink>
           <NavLink to="/press" style={navStyle}>
             Press
           </NavLink>
