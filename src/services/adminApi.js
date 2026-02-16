@@ -54,3 +54,12 @@ export const changePassword = async (currentPassword, newPassword) => {
   );
   return data;
 };
+
+export const addAdmin = async (name, email, password, role) => {
+  const { data } = await axios.post(
+    `${API_BASE_URL}/api/admin/add`,
+    { name, email, password, role },
+    { headers: authHeaders() }
+  );
+  return data;
+};
