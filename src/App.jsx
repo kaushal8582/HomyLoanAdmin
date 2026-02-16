@@ -45,6 +45,7 @@ import AdminArriveHomeContent from "./pages/AdminArriveHomeContent";
 import AdminFixedAdjustableContent from "./pages/AdminFixedAdjustableContent";
 import AdminSelfEmployedContent from "./pages/AdminSelfEmployedContent";
 import AdminFirstTimeHomeBuyersContent from "./pages/AdminFirstTimeHomeBuyersContent";
+import AdminChangePassword from "./pages/AdminChangePassword";
 import { getStoredToken } from "./services/adminApi";
 
 function ProtectedRoute({ children }) {
@@ -110,6 +111,7 @@ function App() {
         <Route path="content/fixed-adjustable" element={<AdminFixedAdjustableContent />} />
         <Route path="content/self-employed" element={<AdminSelfEmployedContent />} />
         <Route path="content/firsttimehomebuyers" element={<AdminFirstTimeHomeBuyersContent />} />
+        <Route path="change-password" element={<AdminChangePassword />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

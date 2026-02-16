@@ -216,6 +216,21 @@ export default function AdminLayout() {
               {admin.email}
             </div>
           )}
+          <NavLink
+            to="/change-password"
+            style={({ isActive }) => ({
+              display: "block",
+              padding: "8px 16px",
+              marginBottom: 8,
+              textDecoration: "none",
+              color: isActive ? "#fff" : "#b0b0b0",
+              background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
+              borderRadius: 8,
+              fontSize: 14,
+            })}
+          >
+            Change Password
+          </NavLink>
           <button
             type="button"
             onClick={handleLogout}
@@ -227,6 +242,7 @@ export default function AdminLayout() {
               borderRadius: 8,
               cursor: "pointer",
               fontSize: 14,
+              width: "100%",
             }}
           >
             Logout

@@ -45,3 +45,12 @@ export const authHeaders = () => {
   const token = getStoredToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+
+export const changePassword = async (currentPassword, newPassword) => {
+  const { data } = await axios.post(
+    `${API_BASE_URL}/api/admin/change-password`,
+    { currentPassword, newPassword },
+    { headers: authHeaders() }
+  );
+  return data;
+};
