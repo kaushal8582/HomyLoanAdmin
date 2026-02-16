@@ -32,7 +32,9 @@ function getEmptyContent() {
       heading: "USDA Loans",
       description: "Homy Loans now offers in-house USDA loans, providing faster approvals and personalized service to help you achieve your homeownership goals with ease.",
       ctaLabel: "Explore loan programs",
-      imageUrl: "",
+      imageUrl: "/Reverse3.svg",
+      imageUrl2: "/Reverse2.svg",
+      imageUrl3: "/Reverse1.svg",
     },
     what: {
       heading: "What is USDA Loan?",
@@ -87,7 +89,12 @@ function renderForm(activeTab, content, updateSection, updateArray, opts = {}) {
         <textarea style={{ ...inputStyle, minHeight: 80 }} value={s.description || ""} onChange={(e) => set("description", e.target.value)} />
         <label style={labelStyle}>CTA Label</label>
         <input style={inputStyle} value={s.ctaLabel || ""} onChange={(e) => set("ctaLabel", e.target.value)} />
+        <label style={labelStyle}>Top Image (Right)</label>
         {renderImageField("hero", "imageUrl", s.imageUrl, set, opts)}
+        <label style={labelStyle}>Bottom Left Image</label>
+        {renderImageField("hero", "imageUrl2", s.imageUrl2, set, opts)}
+        <label style={labelStyle}>Bottom Right Image</label>
+        {renderImageField("hero", "imageUrl3", s.imageUrl3, set, opts)}
       </>
     );
   }

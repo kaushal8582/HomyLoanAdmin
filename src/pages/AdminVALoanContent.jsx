@@ -24,7 +24,7 @@ function getEmptyContent() {
       description:
         "VA Loans help veterans, service members, and eligible families achieve homeownership with no down payment, no PMI, flexible qualifications, and competitive rates. At Homy Loans, we're proud to support those who've served by making this benefit accessible.",
       ctaLabel: "Check Today's Rate",
-      imageUrl: "",
+      imageUrl: "/VA_BG.svg",
       videoUrl: "",
     },
     whatIs: {
@@ -32,7 +32,7 @@ function getEmptyContent() {
       description:
         "A VA loan is a mortgage designed specifically for veterans and service members. It is provided by approved private lenders like Homy Loans and is guaranteed by the federal government (the Department of Veterans Affairs). The primary benefit is the ability to purchase a home with no money down for eligible borrowers who meet qualifying income and credit requirements.",
       ctaLabel: "Get a Quote",
-      imageUrl: "",
+      imageUrl: "/VA_Who.svg",
     },
     who: {
       heading: "Who is Eligible for a VA Loan?",

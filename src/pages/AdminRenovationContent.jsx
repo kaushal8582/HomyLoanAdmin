@@ -12,10 +12,10 @@ function getEmptyContent() {
       description:
         "The HomeStyle Renovation Loan lets you finance both the purchase (or refinance) of a home and the cost of renovations with one convenient loan. Whether you're buying a fixer-upper or upgrading your current property, this program rolls the improvement costs right into your mortgage—simplifying the process and helping you create the home you've always envisioned.",
       ctaLabel: "Explore Loan Programs",
-      imageUrl: "",
+      imageUrl: "/Renovationdocuments.svg",
     },
     what: { heading: "", description: "", ctaLabel: "" },
-    homestyle: { heading: "", description: "", ctaLabel: "", imageUrl: "" },
+    homestyle: { heading: "", description: "", ctaLabel: "", imageUrl: "/Renovationwhat.jpg" },
     faq: { faqs: [] },
   };
 }

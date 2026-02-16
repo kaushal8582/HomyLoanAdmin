@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import * as pageContentApi from "../services/pageContentApi";
-import { uploadImage } from "../services/uploadApi";
+import { uploadImage, uploadVideo } from "../services/uploadApi";
 
 const aboutUsEmptyContent = {
   hero: {
     heading: "About Us",
     pillText: "HOMY LOANS",
+    videoUrl: "",
   },
   homyLoan: {
     heading: "Homy Loans",
@@ -50,6 +51,7 @@ export default function AdminAboutUsContent() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("hero");
   const [imageUploading, setImageUploading] = useState(null);
+  const [videoUploading, setVideoUploading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -135,6 +137,21 @@ export default function AdminAboutUsContent() {
               <input style={inputStyle} value={content.hero?.heading || ""} onChange={(e) => updateSection("hero", "heading", e.target.value)} />
               <label style={labelStyle}>Pill Text</label>
               <input style={inputStyle} value={content.hero?.pillText || ""} onChange={(e) => updateSection("hero", "pillText", e.target.value)} />
+              <label style={labelStyle}>Hero Video (URL or upload)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.hero?.videoUrl || ""} onChange={(e) => updateSection("hero", "videoUrl", e.target.value)} placeholder="Paste video URL or upload below" />
+              </div>
+              <input type="file" accept="video/*" onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setVideoUploading(true);
+                try {
+                  const url = await uploadVideo(file);
+                  updateSection("hero", "videoUrl", url);
+                } catch (err) { setError(err.message || "Video upload failed"); }
+                setVideoUploading(false);
+              }} disabled={videoUploading} style={{ marginBottom: 0 }} />
+              {videoUploading && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
             </>
           )}
 

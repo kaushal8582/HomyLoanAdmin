@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import * as pageContentApi from "../services/pageContentApi";
+import { uploadVideo } from "../services/uploadApi";
 
 const homeBuyerEmptyContent = {
-  hero: {
-    pillText: "HOMY LOANS",
-    heading: "Homebuyer's guide",
-    ctaText: "Check Today's Rate",
-  },
+    hero: {
+      pillText: "HOMY LOANS",
+      heading: "Homebuyer's guide",
+      ctaText: "Check Today's Rate",
+      videoUrl: "",
+    },
   homeBuyerGuide: {
     heading: "HOMEBUYER'S GUIDE",
     guides: [
@@ -41,6 +43,7 @@ function mergeHomeBuyerContent(empty, data) {
       pillText: getValue(heroData.pillText, empty.hero.pillText),
       heading: getValue(heroData.heading, empty.hero.heading),
       ctaText: getValue(heroData.ctaText, empty.hero.ctaText),
+      videoUrl: getValue(heroData.videoUrl, empty.hero.videoUrl),
     },
     homeBuyerGuide: {
       heading: getValue(homeBuyerGuideData.heading, empty.homeBuyerGuide.heading),
@@ -61,6 +64,7 @@ export default function AdminHomeBuyerContent() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("hero");
+  const [videoUploading, setVideoUploading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -153,6 +157,21 @@ export default function AdminHomeBuyerContent() {
               <input style={inputStyle} value={content.hero?.heading || ""} onChange={(e) => updateSection("hero", "heading", e.target.value)} />
               <label style={labelStyle}>CTA Text</label>
               <input style={inputStyle} value={content.hero?.ctaText || ""} onChange={(e) => updateSection("hero", "ctaText", e.target.value)} />
+              <label style={labelStyle}>Hero Video (URL or upload)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.hero?.videoUrl || ""} onChange={(e) => updateSection("hero", "videoUrl", e.target.value)} placeholder="Paste video URL or upload below" />
+              </div>
+              <input type="file" accept="video/*" onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setVideoUploading(true);
+                try {
+                  const url = await uploadVideo(file);
+                  updateSection("hero", "videoUrl", url);
+                } catch (err) { setError(err.message || "Video upload failed"); }
+                setVideoUploading(false);
+              }} disabled={videoUploading} style={{ marginBottom: 0 }} />
+              {videoUploading && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
             </>
           )}
 

@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import * as pageContentApi from "../services/pageContentApi";
+import { uploadVideo } from "../services/uploadApi";
 
 const applyNowEmptyContent = {
-  hero: {
-    heading: "Unlock Your Dream Home: Find the",
-    headingLine2: "Perfect Mortgage",
-    subheading: "Welcome to the Easiest Home Loan Experience!",
-    description: "Apply in just one minute and take the first step toward owning your dream home today.",
-    zipCodeLabel: "Enter your ZIP Code",
-    zipCodePlaceholder: "Enter Your Zip Code",
-    ctaText: "Start Your Application",
-  },
+    hero: {
+      heading: "Unlock Your Dream Home: Find the",
+      headingLine2: "Perfect Mortgage",
+      subheading: "Welcome to the Easiest Home Loan Experience!",
+      description: "Apply in just one minute and take the first step toward owning your dream home today.",
+      zipCodeLabel: "Enter your ZIP Code",
+      zipCodePlaceholder: "Enter Your Zip Code",
+      ctaText: "Start Your Application",
+      videoUrl: "",
+    },
 };
 
 function mergeApplyNowContent(empty, data) {
@@ -27,6 +29,7 @@ function mergeApplyNowContent(empty, data) {
       zipCodeLabel: getValue(heroData.zipCodeLabel, empty.hero.zipCodeLabel),
       zipCodePlaceholder: getValue(heroData.zipCodePlaceholder, empty.hero.zipCodePlaceholder),
       ctaText: getValue(heroData.ctaText, empty.hero.ctaText),
+      videoUrl: getValue(heroData.videoUrl, empty.hero.videoUrl),
     },
   };
 }
@@ -39,6 +42,7 @@ export default function AdminApplyNowContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [videoUploading, setVideoUploading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -112,6 +116,22 @@ export default function AdminApplyNowContent() {
         
         <label style={labelStyle}>CTA Button Text</label>
         <input style={inputStyle} value={content.hero?.ctaText || ""} onChange={(e) => updateSection("hero", "ctaText", e.target.value)} />
+        
+        <label style={labelStyle}>Hero Video (URL or upload)</label>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.hero?.videoUrl || ""} onChange={(e) => updateSection("hero", "videoUrl", e.target.value)} placeholder="Paste video URL or upload below" />
+        </div>
+        <input type="file" accept="video/*" onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          setVideoUploading(true);
+          try {
+            const url = await uploadVideo(file);
+            updateSection("hero", "videoUrl", url);
+          } catch (err) { setError(err.message || "Video upload failed"); }
+          setVideoUploading(false);
+        }} disabled={videoUploading} style={{ marginBottom: 0 }} />
+        {videoUploading && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
       </div>
     </div>
   );

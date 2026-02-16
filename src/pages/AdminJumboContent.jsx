@@ -36,7 +36,7 @@ function getEmptyContent() {
       description:
         "A jumbo loan is a loan for a home where the loan amount falls outside of the conforming loan limits. In most counties the conforming loan limit is $548,250 (higher in other counties).",
       ctaLabel: "Check Today's Rate",
-      imageUrl: "",
+      imageUrl: "/jumboboard.svg",
       videoUrl: "",
     },
     what: {
@@ -56,7 +56,7 @@ function getEmptyContent() {
       heading: "THE HOMY LOANS JUMBO LOAN SOLUTIONS",
       body: defaultSolutionsBody,
       ctaLabel: "Check Today's Rate",
-      imageUrl: "",
+      imageUrl: "/jumbowhat.jpg",
       videoUrl: "",
     },
     mortgage: {

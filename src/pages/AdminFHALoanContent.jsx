@@ -18,7 +18,7 @@ function getEmptyContent() {
       description: "FHA Loan are often a popular choice for first-time homebuyers and those with lower credit scores.",
       ctaLabel: "Check Today's Rate",
       videoUrl: "",
-      imageUrl: "",
+      imageUrl: "/FHA.svg",
     },
     whatIs: {
       heading: "What Is An FHA Loan?",

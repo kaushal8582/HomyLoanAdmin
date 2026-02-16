@@ -26,14 +26,14 @@ function getEmptyContent() {
       description:
         "To refinance a mortgage means to replace an existing mortgage loan with a new one. With a refinance, the principal balance of the existing loan is paid-in-full using the balance of the new loan.",
       ctaLabel: "Check Today's Rate",
-      imageUrl: "",
+      imageUrl: "/home6.svg",
     },
     whatIs: {
       heading: "WHAT IS\nREFINANCING?",
       description:
         "To refinance a mortgage means to replace an existing mortgage loan with a new one. With a refinance, the principal balance of the existing loan is paid-in-full using the balance of the new loan.",
       ctaLabel: "Get a Quote",
-      imageUrl: "",
+      imageUrl: "/computer.svg",
     },
     reasons: {
       heading: "Reasons to Refinance",
