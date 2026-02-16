@@ -217,6 +217,21 @@ export default function AdminLayout() {
             </div>
           )}
           <NavLink
+            to="/account-settings"
+            style={({ isActive }) => ({
+              display: "block",
+              padding: "8px 16px",
+              marginBottom: 8,
+              textDecoration: "none",
+              color: isActive ? "#fff" : "#b0b0b0",
+              background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
+              borderRadius: 8,
+              fontSize: 14,
+            })}
+          >
+            Account Settings
+          </NavLink>
+          <NavLink
             to="/change-password"
             style={({ isActive }) => ({
               display: "block",
@@ -232,21 +247,38 @@ export default function AdminLayout() {
             Change Password
           </NavLink>
           {admin?.role === "superadmin" && (
-            <NavLink
-              to="/add-admin"
-              style={({ isActive }) => ({
-                display: "block",
-                padding: "8px 16px",
-                marginBottom: 8,
-                textDecoration: "none",
-                color: isActive ? "#fff" : "#b0b0b0",
-                background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
-                borderRadius: 8,
-                fontSize: 14,
-              })}
-            >
-              Add Admin
-            </NavLink>
+            <>
+              <NavLink
+                to="/admin-management"
+                style={({ isActive }) => ({
+                  display: "block",
+                  padding: "8px 16px",
+                  marginBottom: 8,
+                  textDecoration: "none",
+                  color: isActive ? "#fff" : "#b0b0b0",
+                  background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
+                  borderRadius: 8,
+                  fontSize: 14,
+                })}
+              >
+                Manage Admins
+              </NavLink>
+              <NavLink
+                to="/add-admin"
+                style={({ isActive }) => ({
+                  display: "block",
+                  padding: "8px 16px",
+                  marginBottom: 8,
+                  textDecoration: "none",
+                  color: isActive ? "#fff" : "#b0b0b0",
+                  background: isActive ? "rgba(255,255,255,0.15)" : "transparent",
+                  borderRadius: 8,
+                  fontSize: 14,
+                })}
+              >
+                Add Admin
+              </NavLink>
+            </>
           )}
           <button
             type="button"

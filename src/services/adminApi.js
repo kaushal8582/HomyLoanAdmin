@@ -63,3 +63,45 @@ export const addAdmin = async (name, email, password, role) => {
   );
   return data;
 };
+
+export const getAllAdmins = async () => {
+  const { data } = await axios.get(
+    `${API_BASE_URL}/api/admin/all`,
+    { headers: authHeaders() }
+  );
+  return data;
+};
+
+export const getAdmin = async (id) => {
+  const { data } = await axios.get(
+    `${API_BASE_URL}/api/admin/${id}`,
+    { headers: authHeaders() }
+  );
+  return data;
+};
+
+export const updateAdmin = async (id, updates) => {
+  const { data } = await axios.put(
+    `${API_BASE_URL}/api/admin/${id}`,
+    updates,
+    { headers: authHeaders() }
+  );
+  return data;
+};
+
+export const deleteAdmin = async (id) => {
+  const { data } = await axios.delete(
+    `${API_BASE_URL}/api/admin/${id}`,
+    { headers: authHeaders() }
+  );
+  return data;
+};
+
+export const updateOwnProfile = async (updates) => {
+  const { data } = await axios.put(
+    `${API_BASE_URL}/api/admin/profile`,
+    updates,
+    { headers: authHeaders() }
+  );
+  return data;
+};
