@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as blogApi from "../services/blogApi";
 import { uploadImage } from "../services/uploadApi";
 
@@ -123,8 +124,10 @@ export default function AdminBlogs() {
       }
       setFormOpen(false);
       loadBlogs();
+      toast.success(editingId ? "Blog updated successfully" : "Blog created successfully");
     } catch (err) {
       setError(err.message || "Save failed");
+      toast.error("Failed to save");
     }
   };
 
@@ -133,8 +136,10 @@ export default function AdminBlogs() {
     try {
       await blogApi.deleteBlog(id);
       loadBlogs();
+      toast.success("Blog deleted successfully");
     } catch (err) {
       setError(err.message || "Delete failed");
+      toast.error("Delete failed");
     }
   };
 

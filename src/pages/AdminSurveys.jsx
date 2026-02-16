@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as surveyApi from "../services/surveyApi";
 
 const formStyles = {
@@ -150,8 +151,10 @@ export default function AdminSurveys() {
       await surveyApi.updateSurvey(editingId, form);
       setFormOpen(false);
       loadSurveys(page);
+      toast.success("Survey updated successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Update failed");
+      toast.error("Update failed");
     }
   };
 
@@ -160,8 +163,10 @@ export default function AdminSurveys() {
     try {
       await surveyApi.deleteSurvey(id);
       loadSurveys(page);
+      toast.success("Survey deleted successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Delete failed");
+      toast.error("Delete failed");
     }
   };
 

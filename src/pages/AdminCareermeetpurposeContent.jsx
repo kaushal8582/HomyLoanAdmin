@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pageContentApi from "../services/pageContentApi";
 import { uploadImage, uploadVideo } from "../services/uploadApi";
 
 const careermeetpurposeEmptyContent = {
-    hero: {
-      heading: "Career Meets Purpose",
-      headingLine2: "LOANS",
-      subtext: "At HomyLoans, we're more than just a mortgage lender—we're a community committed to transforming the homebuying experience. Whether you're an experienced mortgage professional or just starting out, we offer a supportive environment where your growth is our priority.",
-      ctaText: "See Open Positions",
-      videoUrl: "",
-    },
+  hero: {
+    heading: "Career Meets Purpose",
+    headingLine2: "LOANS",
+    subtext: "At HomyLoans, we're more than just a mortgage lender—we're a community committed to transforming the homebuying experience. Whether you're an experienced mortgage professional or just starting out, we offer a supportive environment where your growth is our priority.",
+    ctaText: "See Open Positions",
+    videoUrls: [],
+  },
   whyFitlife: {
     heading: "Why Choose Fitlife Studio?",
     items: [
@@ -50,6 +51,15 @@ const sectionLabels = {
 };
 
 function mergeCareermeetpurposeContent(empty, data) {
+  const heroData = data?.hero || {};
+  let heroVideoUrls = [];
+  if (Array.isArray(heroData.videoUrls) && heroData.videoUrls.length > 0) {
+    heroVideoUrls = heroData.videoUrls;
+  } else if (heroData.videoUrl && String(heroData.videoUrl).trim()) {
+    heroVideoUrls = [heroData.videoUrl.trim()];
+  }
+  const hero = { ...empty.hero, ...heroData, videoUrls: heroVideoUrls };
+
   const whyFitlifeItems = Array.isArray(data?.whyFitlife?.items) && data.whyFitlife.items.length > 0 ? data.whyFitlife.items : empty.whyFitlife.items;
   const whyFitlifeImages = Array.isArray(data?.whyFitlife?.images) ? data.whyFitlife.images.slice(0, 3) : [];
   while (whyFitlifeImages.length < 3) whyFitlifeImages.push("");
@@ -58,7 +68,7 @@ function mergeCareermeetpurposeContent(empty, data) {
   while (careerCards.length < 4) careerCards.push({ title: "", iconSrc: "", description: "", path: "" });
 
   return {
-    hero: { ...empty.hero, ...(data?.hero || {}) },
+    hero,
     whyFitlife: { ...empty.whyFitlife, items: whyFitlifeItems, images: whyFitlifeImages, ...(data?.whyFitlife || {}) },
     careerOpportunities: { ...empty.careerOpportunities, cards: careerCards.slice(0, 10), ...(data?.careerOpportunities || {}) },
     ourCommitment: { ...empty.ourCommitment, ...(data?.ourCommitment || {}) },
@@ -124,8 +134,10 @@ export default function AdminCareermeetpurposeContent() {
     setError("");
     try {
       await pageContentApi.updatePageContent("careermeetpurpose", content);
+      toast.success("Saved successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Save failed");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }
@@ -188,21 +200,30 @@ export default function AdminCareermeetpurposeContent() {
               <textarea style={inputStyle} rows={4} value={content.hero?.subtext || ""} onChange={(e) => updateSection("hero", "subtext", e.target.value)} />
               <label style={labelStyle}>CTA Button Text</label>
               <input style={inputStyle} value={content.hero?.ctaText || ""} onChange={(e) => updateSection("hero", "ctaText", e.target.value)} />
-              <label style={labelStyle}>Hero Video (URL or upload)</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.hero?.videoUrl || ""} onChange={(e) => updateSection("hero", "videoUrl", e.target.value)} placeholder="Paste video URL or upload below" />
-              </div>
+              <label style={labelStyle}>Videos (upload or paste URLs)</label>
               <input type="file" accept="video/*" onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
                 setVideoUploading(true);
+                setError("");
                 try {
                   const url = await uploadVideo(file);
-                  updateSection("hero", "videoUrl", url);
+                  updateSection("hero", "videoUrls", [...(content.hero?.videoUrls || []), url]);
                 } catch (err) { setError(err.message || "Video upload failed"); }
                 setVideoUploading(false);
-              }} disabled={videoUploading} style={{ marginBottom: 0 }} />
+                e.target.value = "";
+              }} disabled={videoUploading} style={{ marginBottom: 8 }} />
               {videoUploading && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
+              {(content.hero?.videoUrls || []).map((url, i) => (
+                <div key={i} style={{ marginBottom: 8, display: "flex", gap: 8, alignItems: "center" }}>
+                  <input style={inputStyle} value={url} onChange={(e) => {
+                    const urls = [...(content.hero?.videoUrls || [])];
+                    urls[i] = e.target.value;
+                    updateSection("hero", "videoUrls", urls);
+                  }} placeholder="Video URL" />
+                  <button type="button" onClick={() => updateSection("hero", "videoUrls", (content.hero?.videoUrls || []).filter((_, j) => j !== i))} style={{ padding: "6px 12px", background: "#c00", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>
+                </div>
+              ))}
             </>
           )}
 
@@ -258,7 +279,24 @@ export default function AdminCareermeetpurposeContent() {
                   <label style={{ ...labelStyle, fontSize: 12 }}>Card {i + 1}</label>
                   <input style={inputStyle} placeholder="Title" value={card.title || ""} onChange={(e) => updateArray("careerOpportunities", "cards", i, { title: e.target.value })} />
                   <textarea style={inputStyle} rows={2} placeholder="Description" value={card.description || ""} onChange={(e) => updateArray("careerOpportunities", "cards", i, { description: e.target.value })} />
-                  <input style={inputStyle} placeholder="Icon URL" value={card.iconSrc || ""} onChange={(e) => updateArray("careerOpportunities", "cards", i, { iconSrc: e.target.value })} />
+                  <label style={{ ...labelStyle, fontSize: 12 }}>Icon (URL or upload)</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} placeholder="Icon URL" value={card.iconSrc || ""} onChange={(e) => updateArray("careerOpportunities", "cards", i, { iconSrc: e.target.value })} />
+                    {(card.iconSrc && isImageUrl(card.iconSrc)) && <img src={card.iconSrc} alt="" style={thumbStyle} />}
+                  </div>
+                  <input type="file" accept="image/*" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setImageUploading(`career-icon-${i}`);
+                    setError("");
+                    try {
+                      const url = await uploadImage(file);
+                      updateArray("careerOpportunities", "cards", i, { iconSrc: url });
+                    } catch (err) { setError(err.message || "Image upload failed"); }
+                    setImageUploading(null);
+                    e.target.value = "";
+                  }} disabled={!!imageUploading} style={{ marginBottom: 8 }} />
+                  {imageUploading === `career-icon-${i}` && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
                   <input style={inputStyle} placeholder="Path (e.g. /careers/mortgage-loan-officers)" value={card.path || ""} onChange={(e) => updateArray("careerOpportunities", "cards", i, { path: e.target.value })} />
                 </div>
               ))}

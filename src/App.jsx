@@ -1,4 +1,5 @@
 import React from "react";
+import { Toaster } from "react-hot-toast";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./pages/AdminLayout";
@@ -54,7 +55,9 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <Routes>
+    <>
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+      <Routes>
       <Route path="/login" element={<AdminLogin />} />
       <Route
         path="/"
@@ -110,6 +113,7 @@ function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
 

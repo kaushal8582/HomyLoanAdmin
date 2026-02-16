@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pageContentApi from "../services/pageContentApi";
 import { uploadImage } from "../services/uploadApi";
 import { mergeWithDefaults } from "../utils/contentMerge";
@@ -170,8 +171,10 @@ export default function AdminPurchaseContent() {
     setError("");
     try {
       await pageContentApi.updatePageContent("purchase", content);
+      toast.success("Saved successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Save failed");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }

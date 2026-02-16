@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pageContentApi from "../services/pageContentApi";
-import { uploadImage } from "../services/uploadApi";
+import { uploadImage, uploadVideo } from "../services/uploadApi";
 
 const leadershipEmptyContent = {
   hero: {
     heading: "Our Leadership Team",
+    videoUrls: [],
   },
   leaders: [
     { name: "Nick Hunt", role: "Chief Financial Officer", image: "" },
@@ -20,8 +22,16 @@ function mergeLeadershipContent(empty, data) {
   while (paddedLeaders.length < 3) {
     paddedLeaders.push({ name: "", role: "", image: "" });
   }
+  const heroData = data?.hero || {};
+  let heroVideoUrls = [];
+  if (Array.isArray(heroData.videoUrls) && heroData.videoUrls.length > 0) {
+    heroVideoUrls = heroData.videoUrls;
+  } else if (heroData.videoUrl && String(heroData.videoUrl).trim()) {
+    heroVideoUrls = [heroData.videoUrl.trim()];
+  }
+  const hero = { ...empty.hero, ...heroData, videoUrls: heroVideoUrls };
   return {
-    hero: { ...empty.hero, ...(data?.hero || {}) },
+    hero,
     leaders: paddedLeaders.slice(0, 10), // Allow up to 10 leaders
   };
 }
@@ -35,6 +45,7 @@ export default function AdminLeadershipContent() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [imageUploading, setImageUploading] = useState(null);
+  const [videoUploading, setVideoUploading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -81,8 +92,10 @@ export default function AdminLeadershipContent() {
     setError("");
     try {
       await pageContentApi.updatePageContent("leadership", content);
+      toast.success("Saved successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Save failed");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }
@@ -113,6 +126,31 @@ export default function AdminLeadershipContent() {
       <div style={{ background: "#fff", padding: 24, borderRadius: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
         <label style={labelStyle}>Hero Heading</label>
         <input style={inputStyle} value={content.hero?.heading || ""} onChange={(e) => updateSection("hero", "heading", e.target.value)} />
+
+        <label style={labelStyle}>Videos (upload or paste URLs)</label>
+        <input type="file" accept="video/*" onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          setVideoUploading(true);
+          setError("");
+          try {
+            const url = await uploadVideo(file);
+            updateSection("hero", "videoUrls", [...(content.hero?.videoUrls || []), url]);
+          } catch (err) { setError(err.message || "Video upload failed"); }
+          setVideoUploading(false);
+          e.target.value = "";
+        }} disabled={videoUploading} style={{ marginBottom: 8 }} />
+        {videoUploading && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
+        {(content.hero?.videoUrls || []).map((url, i) => (
+          <div key={i} style={{ marginBottom: 8, display: "flex", gap: 8, alignItems: "center" }}>
+            <input style={inputStyle} value={url} onChange={(e) => {
+              const urls = [...(content.hero?.videoUrls || [])];
+              urls[i] = e.target.value;
+              updateSection("hero", "videoUrls", urls);
+            }} placeholder="Video URL" />
+            <button type="button" onClick={() => updateSection("hero", "videoUrls", (content.hero?.videoUrls || []).filter((_, j) => j !== i))} style={{ padding: "6px 12px", background: "#c00", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>
+          </div>
+        ))}
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, marginBottom: 16 }}>
           <label style={labelStyle}>Leadership Team Members</label>

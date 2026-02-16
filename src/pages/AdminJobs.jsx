@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as jobApi from "../services/jobApi";
 import { uploadImage } from "../services/uploadApi";
 
@@ -144,8 +145,10 @@ export default function AdminJobs() {
       }
       setFormOpen(false);
       loadJobs();
+      toast.success(editingId ? "Job updated successfully" : "Job created successfully");
     } catch (err) {
       setError(err.message || "Save failed");
+      toast.error("Failed to save");
     }
   };
 
@@ -154,8 +157,10 @@ export default function AdminJobs() {
     try {
       await jobApi.deleteJob(id);
       loadJobs();
+      toast.success("Job deleted successfully");
     } catch (err) {
       setError(err.message || "Delete failed");
+      toast.error("Delete failed");
     }
   };
 

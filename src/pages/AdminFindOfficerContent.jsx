@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pageContentApi from "../services/pageContentApi";
-import { uploadVideo } from "../services/uploadApi";
 
 const findOfficerEmptyContent = {
-    hero: {
-      heading: "Find a Mortgage Loan Officer",
-      subheading: "Welcome to the Easiest Home Loan Experience!",
-      description: "Apply in just one minute and take the first step toward owning your dream home today.",
-      ctaText: "Start Your Application",
-      videoUrl: "",
-    },
+  hero: {
+    heading: "Find a Mortgage Loan Officer",
+    subheading: "Welcome to the Easiest Home Loan Experience!",
+    description: "Apply in just one minute and take the first step toward owning your dream home today.",
+    ctaText: "Start Your Application",
+  },
   branch: {
     branches: [
       { name: "UNION MORTGAGE BRANCH", address: "1496 Morris Ave Suite 1 Union NJ, 282.1 mi", image: "/branch.svg" },
@@ -24,8 +23,14 @@ function mergeFindOfficerContent(empty, data) {
   const getValue = (dataVal, defaultVal) => (dataVal !== null && dataVal !== undefined ? dataVal : defaultVal);
 
   const heroData = data?.hero || {};
+  let heroVideoUrls = [];
+  if (Array.isArray(heroData.videoUrls) && heroData.videoUrls.length > 0) {
+    heroVideoUrls = heroData.videoUrls;
+  } else if (heroData.videoUrl && String(heroData.videoUrl).trim()) {
+    heroVideoUrls = [heroData.videoUrl.trim()];
+  }
+
   const branchData = data?.branch || {};
-  
   let branches = [];
   if (Array.isArray(branchData.branches) && branchData.branches.length > 0) {
     branches = branchData.branches.map((branch, i) => ({
@@ -44,7 +49,6 @@ function mergeFindOfficerContent(empty, data) {
       subheading: getValue(heroData.subheading, empty.hero.subheading),
       description: getValue(heroData.description, empty.hero.description),
       ctaText: getValue(heroData.ctaText, empty.hero.ctaText),
-      videoUrl: getValue(heroData.videoUrl, empty.hero.videoUrl),
     },
     branch: {
       branches: branches.slice(0, 4),
@@ -58,13 +62,15 @@ const labelStyle = { display: "block", marginBottom: 4, fontWeight: 500, fontSiz
 const sectionOrder = ["hero", "branch"];
 const sectionLabels = { hero: "Hero", branch: "Branches" };
 
+const isImageUrl = (s) => typeof s === "string" && (s.startsWith("http://") || s.startsWith("https://"));
+const thumbStyle = { width: 48, height: 48, objectFit: "cover", borderRadius: 4, marginLeft: 8 };
+
 export default function AdminFindOfficerContent() {
   const [content, setContent] = useState(findOfficerEmptyContent);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("hero");
-  const [videoUploading, setVideoUploading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -98,8 +104,10 @@ export default function AdminFindOfficerContent() {
     setError("");
     try {
       await pageContentApi.updatePageContent("findofficer", content);
+      toast.success("Saved successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Save failed");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }
@@ -159,21 +167,6 @@ export default function AdminFindOfficerContent() {
               <textarea style={inputStyle} rows={3} value={content.hero?.description || ""} onChange={(e) => updateSection("hero", "description", e.target.value)} />
               <label style={labelStyle}>CTA Text</label>
               <input style={inputStyle} value={content.hero?.ctaText || ""} onChange={(e) => updateSection("hero", "ctaText", e.target.value)} />
-              <label style={labelStyle}>Hero Video (URL or upload)</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.hero?.videoUrl || ""} onChange={(e) => updateSection("hero", "videoUrl", e.target.value)} placeholder="Paste video URL or upload below" />
-              </div>
-              <input type="file" accept="video/*" onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setVideoUploading(true);
-                try {
-                  const url = await uploadVideo(file);
-                  updateSection("hero", "videoUrl", url);
-                } catch (err) { setError(err.message || "Video upload failed"); }
-                setVideoUploading(false);
-              }} disabled={videoUploading} style={{ marginBottom: 0 }} />
-              {videoUploading && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
             </>
           )}
 
@@ -185,7 +178,24 @@ export default function AdminFindOfficerContent() {
                   <label style={{ ...labelStyle, fontSize: 12 }}>Branch {i + 1}</label>
                   <input style={inputStyle} placeholder="Branch Name" value={branch.name || ""} onChange={(e) => updateBranch(i, "name", e.target.value)} />
                   <input style={inputStyle} placeholder="Address" value={branch.address || ""} onChange={(e) => updateBranch(i, "address", e.target.value)} />
-                  <input style={inputStyle} placeholder="Image URL" value={branch.image || ""} onChange={(e) => updateBranch(i, "image", e.target.value)} />
+                  <label style={{ ...labelStyle, fontSize: 12 }}>Image (URL or upload)</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} placeholder="Image URL" value={branch.image || ""} onChange={(e) => updateBranch(i, "image", e.target.value)} />
+                    {(branch.image && isImageUrl(branch.image)) && <img src={branch.image} alt="" style={thumbStyle} />}
+                  </div>
+                  <input type="file" accept="image/*" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setImageUploading(`branch-${i}`);
+                    setError("");
+                    try {
+                      const url = await uploadImage(file);
+                      updateBranch(i, "image", url);
+                    } catch (err) { setError(err.message || "Image upload failed"); }
+                    setImageUploading(null);
+                    e.target.value = "";
+                  }} disabled={!!imageUploading} style={{ marginBottom: 0 }} />
+                  {imageUploading === `branch-${i}` && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
                 </div>
               ))}
             </>

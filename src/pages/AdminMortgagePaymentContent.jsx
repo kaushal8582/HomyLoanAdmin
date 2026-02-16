@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pageContentApi from "../services/pageContentApi";
 
 const mortgagePaymentEmptyContent = {
@@ -93,8 +94,10 @@ export default function AdminMortgagePaymentContent() {
     setError("");
     try {
       await pageContentApi.updatePageContent("mortgagepayment", content);
+      toast.success("Saved successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Save failed");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }

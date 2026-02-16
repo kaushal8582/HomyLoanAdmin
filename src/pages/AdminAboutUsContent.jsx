@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pageContentApi from "../services/pageContentApi";
 import { uploadImage, uploadVideo } from "../services/uploadApi";
 
@@ -6,7 +7,7 @@ const aboutUsEmptyContent = {
   hero: {
     heading: "About Us",
     pillText: "HOMY LOANS",
-    videoUrl: "",
+    videoUrls: [],
   },
   homyLoan: {
     heading: "Homy Loans",
@@ -33,8 +34,16 @@ const sectionLabels = {
 };
 
 function mergeAboutUsContent(empty, data) {
+  const heroData = data?.hero || {};
+  let heroVideoUrls = [];
+  if (Array.isArray(heroData.videoUrls) && heroData.videoUrls.length > 0) {
+    heroVideoUrls = heroData.videoUrls;
+  } else if (heroData.videoUrl && String(heroData.videoUrl).trim()) {
+    heroVideoUrls = [heroData.videoUrl.trim()];
+  }
+  const hero = { ...empty.hero, ...heroData, videoUrls: heroVideoUrls };
   return {
-    hero: { ...empty.hero, ...(data?.hero || {}) },
+    hero,
     homyLoan: { ...empty.homyLoan, ...(data?.homyLoan || {}) },
     philosophy: { ...empty.philosophy, ...(data?.philosophy || {}) },
     whatWeOffer: { ...empty.whatWeOffer, ...(data?.whatWeOffer || {}) },
@@ -77,8 +86,10 @@ export default function AdminAboutUsContent() {
     setError("");
     try {
       await pageContentApi.updatePageContent("aboutus", content);
+      toast.success("Saved successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Save failed");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }
@@ -137,21 +148,30 @@ export default function AdminAboutUsContent() {
               <input style={inputStyle} value={content.hero?.heading || ""} onChange={(e) => updateSection("hero", "heading", e.target.value)} />
               <label style={labelStyle}>Pill Text</label>
               <input style={inputStyle} value={content.hero?.pillText || ""} onChange={(e) => updateSection("hero", "pillText", e.target.value)} />
-              <label style={labelStyle}>Hero Video (URL or upload)</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.hero?.videoUrl || ""} onChange={(e) => updateSection("hero", "videoUrl", e.target.value)} placeholder="Paste video URL or upload below" />
-              </div>
+              <label style={labelStyle}>Videos (upload or paste URLs)</label>
               <input type="file" accept="video/*" onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
                 setVideoUploading(true);
+                setError("");
                 try {
                   const url = await uploadVideo(file);
-                  updateSection("hero", "videoUrl", url);
+                  updateSection("hero", "videoUrls", [...(content.hero?.videoUrls || []), url]);
                 } catch (err) { setError(err.message || "Video upload failed"); }
                 setVideoUploading(false);
-              }} disabled={videoUploading} style={{ marginBottom: 0 }} />
+                e.target.value = "";
+              }} disabled={videoUploading} style={{ marginBottom: 8 }} />
               {videoUploading && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
+              {(content.hero?.videoUrls || []).map((url, i) => (
+                <div key={i} style={{ marginBottom: 8, display: "flex", gap: 8, alignItems: "center" }}>
+                  <input style={inputStyle} value={url} onChange={(e) => {
+                    const urls = [...(content.hero?.videoUrls || [])];
+                    urls[i] = e.target.value;
+                    updateSection("hero", "videoUrls", urls);
+                  }} placeholder="Video URL" />
+                  <button type="button" onClick={() => updateSection("hero", "videoUrls", (content.hero?.videoUrls || []).filter((_, j) => j !== i))} style={{ padding: "6px 12px", background: "#c00", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Remove</button>
+                </div>
+              ))}
             </>
           )}
 

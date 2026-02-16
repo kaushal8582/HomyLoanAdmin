@@ -2,6 +2,21 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
+// Auto logout on 401 (expired or invalid token)
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      const isLoginRequest = error?.config?.url?.includes("/api/admin/login");
+      if (!isLoginRequest) {
+        adminLogout();
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const adminLogin = async (email, password) => {
   const { data } = await axios.post(`${API_BASE_URL}/api/admin/login`, {
     email,

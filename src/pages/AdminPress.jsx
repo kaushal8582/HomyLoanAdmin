@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pressApi from "../services/pressApi";
 import { uploadImage } from "../services/uploadApi";
 
@@ -123,8 +124,10 @@ export default function AdminPress() {
       }
       setFormOpen(false);
       loadPress();
+      toast.success(editingId ? "Press item updated successfully" : "Press item created successfully");
     } catch (err) {
       setError(err.message || "Save failed");
+      toast.error("Failed to save");
     }
   };
 
@@ -133,8 +136,10 @@ export default function AdminPress() {
     try {
       await pressApi.deletePress(id);
       loadPress();
+      toast.success("Press item deleted successfully");
     } catch (err) {
       setError(err.message || "Delete failed");
+      toast.error("Delete failed");
     }
   };
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import * as pageContentApi from "../services/pageContentApi";
+import { uploadImage } from "../services/uploadApi";
 
 const mortgageTermDefinedEmptyContent = {
   hero: {
@@ -40,12 +42,16 @@ const labelStyle = { display: "block", marginBottom: 4, fontWeight: 500, fontSiz
 const sectionOrder = ["hero", "terms"];
 const sectionLabels = { hero: "Hero", terms: "Terms" };
 
+const isImageUrl = (s) => typeof s === "string" && (s.startsWith("http://") || s.startsWith("https://"));
+const thumbStyle = { width: 48, height: 48, objectFit: "cover", borderRadius: 4, marginLeft: 8 };
+
 export default function AdminMortgageTermDefinedContent() {
   const [content, setContent] = useState(mortgageTermDefinedEmptyContent);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("hero");
+  const [imageUploading, setImageUploading] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -71,8 +77,10 @@ export default function AdminMortgageTermDefinedContent() {
     setError("");
     try {
       await pageContentApi.updatePageContent("mortgagetermdefined", content);
+      toast.success("Saved successfully");
     } catch (err) {
       setError(err.response?.data?.error || err.message || "Save failed");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }
@@ -128,8 +136,24 @@ export default function AdminMortgageTermDefinedContent() {
               <input style={inputStyle} value={content.hero?.pillText || ""} onChange={(e) => updateSection("hero", "pillText", e.target.value)} />
               <label style={labelStyle}>Hero Heading</label>
               <input style={inputStyle} value={content.hero?.heading || ""} onChange={(e) => updateSection("hero", "heading", e.target.value)} />
-              <label style={labelStyle}>Hero Image URL</label>
-              <input style={inputStyle} value={content.hero?.image || ""} onChange={(e) => updateSection("hero", "image", e.target.value)} placeholder="/MorgageTerm.svg" />
+              <label style={labelStyle}>Hero Image (URL or upload)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.hero?.image || ""} onChange={(e) => updateSection("hero", "image", e.target.value)} placeholder="/MorgageTerm.svg or paste URL" />
+                {(content.hero?.image && isImageUrl(content.hero.image)) && <img src={content.hero.image} alt="" style={thumbStyle} />}
+              </div>
+              <input type="file" accept="image/*" onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setImageUploading("hero");
+                setError("");
+                try {
+                  const url = await uploadImage(file);
+                  updateSection("hero", "image", url);
+                } catch (err) { setError(err.message || "Image upload failed"); }
+                setImageUploading(null);
+                e.target.value = "";
+              }} disabled={!!imageUploading} style={{ marginBottom: 0 }} />
+              {imageUploading === "hero" && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
             </>
           )}
 
@@ -139,8 +163,24 @@ export default function AdminMortgageTermDefinedContent() {
               <input style={inputStyle} value={content.terms?.heading || ""} onChange={(e) => updateSection("terms", "heading", e.target.value)} />
               <label style={labelStyle}>Description (use \n for line breaks)</label>
               <textarea style={inputStyle} rows={15} value={content.terms?.description || ""} onChange={(e) => updateSection("terms", "description", e.target.value)} />
-              <label style={labelStyle}>Terms Image URL</label>
-              <input style={inputStyle} value={content.terms?.image || ""} onChange={(e) => updateSection("terms", "image", e.target.value)} placeholder="/MorgageTermDefined.svg" />
+              <label style={labelStyle}>Terms Image (URL or upload)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <input style={{ ...inputStyle, marginBottom: 0, flex: 1 }} value={content.terms?.image || ""} onChange={(e) => updateSection("terms", "image", e.target.value)} placeholder="/MorgageTermDefined.svg or paste URL" />
+                {(content.terms?.image && isImageUrl(content.terms.image)) && <img src={content.terms.image} alt="" style={thumbStyle} />}
+              </div>
+              <input type="file" accept="image/*" onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setImageUploading("terms");
+                setError("");
+                try {
+                  const url = await uploadImage(file);
+                  updateSection("terms", "image", url);
+                } catch (err) { setError(err.message || "Image upload failed"); }
+                setImageUploading(null);
+                e.target.value = "";
+              }} disabled={!!imageUploading} style={{ marginBottom: 0 }} />
+              {imageUploading === "terms" && <span style={{ fontSize: 12, color: "#666", marginLeft: 8 }}>Uploading…</span>}
             </>
           )}
         </div>
